@@ -14,6 +14,9 @@
     cartesian_impedance_controller:
       type: compliant_controllers/GenericCartesianControllerWrapper
 
+    joint_impedance_controller:
+      type: compliant_controllers/GenericJointControllerWrapper
+
     iiwa14_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 

@@ -10,7 +10,9 @@ Main project: https://github.com/smihael/compliant_controllers
 
 ```bash
 ros2 launch compliant_controllers_demos fr3_gz.launch.py load_gripper:=false
+ros2 launch compliant_controllers_demos fr3_gz.launch.py controller_name:=joint_impedance_controller
 ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=cartesian_impedance_controller
+ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=joint_impedance_controller
 ros2 launch compliant_controllers_demos fr3_robotiq.launch.py com_port:=/dev/ttyUSB0
 ros2 launch compliant_controllers_demos fr3_spacemouse_teleop.launch.py load_gripper:=false
 ros2 launch compliant_controllers_demos ur_gz.launch.py ur_type:=ur10e

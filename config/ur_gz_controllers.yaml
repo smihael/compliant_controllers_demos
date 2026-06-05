@@ -11,6 +11,9 @@
     cartesian_impedance_controller:
       type: compliant_controllers/GenericCartesianControllerWrapper
 
+    joint_impedance_controller:
+      type: compliant_controllers/GenericJointControllerWrapper
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -96,4 +99,3 @@ joint_trajectory_controller:
       wrist_1_joint: { trajectory: 0.2, goal: 0.1 }
       wrist_2_joint: { trajectory: 0.2, goal: 0.1 }
       wrist_3_joint: { trajectory: 0.2, goal: 0.1 }
-

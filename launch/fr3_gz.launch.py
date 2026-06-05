@@ -135,11 +135,17 @@ def _gazebo_include(context: LaunchContext, world, show_gazebo_gui, controller_d
     return [gazebo_launch]
 
 
+def _is_joint_controller(controller_name):
+    return controller_name == 'joint_impedance_controller'
+
+
 def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
     namespace = context.perform_substitution(LaunchConfiguration('namespace'))
     arm_id = context.perform_substitution(LaunchConfiguration('arm_id'))
     controller_manager = f'/{namespace}/controller_manager' if namespace else '/controller_manager'
     rviz_flag = context.perform_substitution(show_rviz).lower() in ('true', '1', 'yes')
+    controller_name = context.perform_substitution(LaunchConfiguration('controller_name'))
+    impl_library = context.perform_substitution(LaunchConfiguration('impl_library'))
 
     spawn = Node(
         package='ros_gz_sim', executable='create', name='spawn_fr3',
@@ -152,20 +158,34 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
         arguments=['joint_state_broadcaster', '--controller-manager', controller_manager],
     )
 
-    include_controller = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory('compliant_controllers'),
-                'launch',
-                'generic_controller_wrapper.launch.py',
-            )
-        ),
-        launch_arguments={
+    if _is_joint_controller(controller_name):
+        controller_launch_file = 'joint_wrapper.launch.py'
+        controller_launch_arguments = {
             'namespace': LaunchConfiguration('namespace'),
             'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
             'controller_manager': controller_manager,
-            'impl_library': LaunchConfiguration('impl_library'),
+            'ee_frame': LaunchConfiguration('ee_frame'),
+            'robot_description_node': '/robot_state_publisher',
+            'robot_description_param': 'robot_description',
+            'add_friction_compensation': LaunchConfiguration('add_friction_compensation'),
+            'friction_model': LaunchConfiguration('friction_model'),
+            'friction_scale': LaunchConfiguration('friction_scale'),
+            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
+            'initial_stiffness': LaunchConfiguration('joint_initial_stiffness'),
+            'initial_damping': LaunchConfiguration('joint_initial_damping'),
+            'filter_alpha': LaunchConfiguration('joint_filter_alpha'),
+            'max_tau_delta': LaunchConfiguration('joint_max_tau_delta'),
+            'power_enable_tau_norm_threshold': LaunchConfiguration('joint_power_enable_tau_norm_threshold'),
+            'max_power_enable_count': LaunchConfiguration('joint_max_power_enable_count'),
+        }
+    else:
+        controller_launch_file = 'cartesian_wrapper.launch.py'
+        controller_launch_arguments = {
+            'namespace': LaunchConfiguration('namespace'),
+            'arm_id': LaunchConfiguration('arm_id'),
+            'controller_name': LaunchConfiguration('controller_name'),
+            'controller_manager': controller_manager,
             'init_k_pos': LaunchConfiguration('init_k_pos'),
             'init_k_ori': LaunchConfiguration('init_k_ori'),
             'ee_frame': LaunchConfiguration('ee_frame'),
@@ -185,7 +205,21 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
             'load_end_effector_profile': LaunchConfiguration('load_end_effector_profile'),
             'end_effector_profile': LaunchConfiguration('end_effector_profile'),
-        }.items(),
+        }
+    controller_launch_arguments['impl_library'] = impl_library or (
+        'libjoint_impedance_impl.so' if _is_joint_controller(controller_name)
+        else 'libcartesian_impedance_impl.so'
+    )
+
+    include_controller = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('compliant_controllers'),
+                'launch',
+                controller_launch_file,
+            )
+        ),
+        launch_arguments=controller_launch_arguments.items(),
     )
 
     # Start state broadcaster and primary controller in parallel right after spawn
@@ -227,9 +261,15 @@ def generate_launch_description():
         DeclareLaunchArgument('load_gripper', default_value='false', description='Load gripper in URDF'),
         DeclareLaunchArgument('franka_hand', default_value='franka_hand', description='Gripper variant'),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller', description='Primary controller to spawn'),
-        DeclareLaunchArgument('impl_library', default_value='libcartesian_impedance_impl.so'),
+        DeclareLaunchArgument('impl_library', default_value=''),
         DeclareLaunchArgument('init_k_pos', default_value='200.0'),
         DeclareLaunchArgument('init_k_ori', default_value='10.0'),
+        DeclareLaunchArgument('joint_initial_stiffness', default_value='600,600,600,600,250,150,50'),
+        DeclareLaunchArgument('joint_initial_damping', default_value='30,30,30,30,10,10,5'),
+        DeclareLaunchArgument('joint_filter_alpha', default_value='0.99'),
+        DeclareLaunchArgument('joint_max_tau_delta', default_value='1.0'),
+        DeclareLaunchArgument('joint_power_enable_tau_norm_threshold', default_value='1.1'),
+        DeclareLaunchArgument('joint_max_power_enable_count', default_value='100'),
         DeclareLaunchArgument('ee_frame', default_value=''),
         DeclareLaunchArgument('base_frame', default_value=''),
         DeclareLaunchArgument('add_gravity_compensation', default_value='true'),

@@ -136,7 +136,7 @@ def _build_runtime_nodes(context: LaunchContext, controller_name, publish_world_
             os.path.join(
                 get_package_share_directory('compliant_controllers'),
                 'launch',
-                'generic_controller_wrapper.launch.py',
+                'cartesian_wrapper.launch.py',
             )
         ),
         launch_arguments={

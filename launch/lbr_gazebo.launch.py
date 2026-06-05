@@ -272,7 +272,7 @@ def generate_launch_description() -> LaunchDescription:
             PathJoinSubstitution([
                 FindPackageShare("compliant_controllers"),
                 "launch",
-                "generic_controller_wrapper.launch.py",
+                "cartesian_wrapper.launch.py",
             ])
         ),
         launch_arguments={

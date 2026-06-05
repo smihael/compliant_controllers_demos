@@ -255,7 +255,7 @@ def launch_setup(context, *args, **kwargs):
 
     include_controller = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [FindPackageShare("compliant_controllers"), "/launch/generic_controller_wrapper.launch.py"]
+            [FindPackageShare("compliant_controllers"), "/launch/cartesian_wrapper.launch.py"]
         ),
         launch_arguments={
             "namespace": "",

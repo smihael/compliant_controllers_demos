@@ -4,6 +4,9 @@
     cartesian_impedance_controller:
       type: compliant_controllers/GenericCartesianControllerWrapper
 
+    joint_impedance_controller:
+      type: compliant_controllers/GenericJointControllerWrapper
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 

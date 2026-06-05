@@ -23,6 +23,9 @@
       cartesian_impedance_controller:
         type: compliant_controllers/GenericCartesianControllerWrapper
 
+      joint_impedance_controller:
+        type: compliant_controllers/GenericJointControllerWrapper
+
       friction_estimation_controller:
         type: compliant_controllers/GenericCartesianControllerWrapper
 
