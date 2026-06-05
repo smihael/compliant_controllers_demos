@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3_robotiq_2f_85">
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro"/>
+
+  <xacro:arg name="robot_type" default="fr3"/>
+  <xacro:arg name="arm_prefix" default=""/>
+  <xacro:arg name="no_prefix" default="false"/>
+  <xacro:arg name="robotiq_prefix" default=""/>
+  <xacro:arg name="robotiq_parent" default=""/>
+  <xacro:arg name="xyz_robotiq" default="0 0 0"/>
+  <xacro:arg name="rpy_robotiq" default="0 0 0"/>
+  <xacro:arg name="include_ros2_control" default="true"/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="mock_sensor_commands" default="false"/>
+  <xacro:arg name="com_port" default="/dev/ttyUSB0"/>
+
+  <xacro:property name="prefix" value="$(arg arm_prefix)"/>
+  <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <xacro:property name="robot_type" value="$(arg robot_type)"/>
+  <xacro:property name="robotiq_parent_arg" value="$(arg robotiq_parent)"/>
+  <xacro:property name="default_robotiq_parent" value="${modified_prefix + robot_type + '_link8'}"/>
+  <xacro:property name="robotiq_parent_link"
+    value="${default_robotiq_parent if robotiq_parent_arg == '' else robotiq_parent_arg}"/>
+
+  <xacro:franka_robot
+    robot_type="${robot_type}"
+    gazebo="false"
+    hand="false"
+    ros2_control="false"
+    no_prefix="$(arg no_prefix)"
+    arm_prefix="${modified_prefix}"
+    connected_to="base"/>
+
+  <xacro:robotiq_gripper
+    name="RobotiqGripperHardwareInterface"
+    prefix="$(arg robotiq_prefix)"
+    parent="${robotiq_parent_link}"
+    include_ros2_control="$(arg include_ros2_control)"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    mock_sensor_commands="$(arg mock_sensor_commands)"
+    com_port="$(arg com_port)">
+    <origin xyz="$(arg xyz_robotiq)" rpy="$(arg rpy_robotiq)"/>
+  </xacro:robotiq_gripper>
+</robot>
