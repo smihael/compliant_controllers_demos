@@ -11,4 +11,9 @@ install(DIRECTORY config/
   DESTINATION share/${PROJECT_NAME}/config
 )
 
+install(PROGRAMS
+  scripts/spacemouse_to_cartesian_command.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()

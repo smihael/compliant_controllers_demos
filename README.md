@@ -11,9 +11,14 @@ Main project: https://github.com/smihael/compliant_controllers
 ```bash
 ros2 launch compliant_controllers_demos fr3_gz.launch.py load_gripper:=false
 ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=cartesian_impedance_controller
+ros2 launch compliant_controllers_demos fr3_spacemouse_teleop.launch.py load_gripper:=false
 ros2 launch compliant_controllers_demos ur_gz.launch.py ur_type:=ur10e
 ros2 launch compliant_controllers_demos lbr_gazebo.launch.py model:=iiwa14 ctrl:=cartesian_impedance_controller
 ```
+
+The SpaceMouse teleop demo starts the FR3 controller, the existing `spacemouse_publisher`
+node, and a bridge that converts SpaceMouse `Twist` messages into stamped
+`compliant_controllers_msgs/CartesianCommand` targets.
 
 ## Build
 
