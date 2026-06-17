@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3_onrobot_ft">
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+
+  <xacro:arg name="robot_type" default="fr3"/>
+  <xacro:arg name="arm_prefix" default=""/>
+  <xacro:arg name="no_prefix" default="false"/>
+  <xacro:arg name="ft_prefix" default="onrobot_"/>
+  <xacro:arg name="ft_parent" default=""/>
+  <xacro:arg name="xyz_onrobot" default="0 0 0"/>
+  <xacro:arg name="rpy_onrobot" default="0 0 -1.5707963267948966"/>
+  <xacro:arg name="onrobot_ip_address" default="192.168.1.1"/>
+  <xacro:arg name="onrobot_sampling_rate" default="500"/>
+  <xacro:arg name="onrobot_internal_filter_rate" default="0"/>
+  <xacro:arg name="onrobot_use_hardware_biasing" default="false"/>
+  <xacro:arg name="ros2_control" default="false"/>
+  <xacro:arg name="robot_ip" default=""/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="fake_sensor_commands" default="false"/>
+
+  <xacro:property name="prefix" value="$(arg arm_prefix)"/>
+  <xacro:property name="modified_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <xacro:property name="robot_type" value="$(arg robot_type)"/>
+  <xacro:property name="ft_parent_arg" value="$(arg ft_parent)"/>
+  <xacro:property name="default_ft_parent" value="${modified_prefix + robot_type + '_link8'}"/>
+  <xacro:property name="ft_parent_link"
+    value="${default_ft_parent if ft_parent_arg == '' else ft_parent_arg}"/>
+
+  <xacro:macro name="onrobot_ft_mount" params="prefix parent *origin">
+    <joint name="${prefix}fts_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="${prefix}fts_link"/>
+      <xacro:insert_block name="origin"/>
+    </joint>
+
+    <link name="${prefix}fts_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://net_ft_description/meshes/visual/onrobot_hexe_v2_ft_sensor.dae"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://net_ft_description/meshes/collision/onrobot_hexe_v2_ft_sensor.stl"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="0.245"/>
+        <inertia ixx="0.0003288302083333334" ixy="0.0" ixz="0.0"
+          iyy="0.0003288302083333334" iyz="0.0" izz="0.00060025"/>
+      </inertial>
+    </link>
+
+    <joint name="${prefix}tool_side_joint" type="fixed">
+      <parent link="${prefix}fts_link"/>
+      <child link="${prefix}tool_mount_link"/>
+      <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+    </joint>
+    <link name="${prefix}tool_mount_link"/>
+  </xacro:macro>
+
+  <xacro:franka_robot
+    robot_type="${robot_type}"
+    gazebo="false"
+    hand="false"
+    ros2_control="$(arg ros2_control)"
+    robot_ip="$(arg robot_ip)"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    fake_sensor_commands="$(arg fake_sensor_commands)"
+    no_prefix="$(arg no_prefix)"
+    arm_prefix="${modified_prefix}"
+    connected_to="base"/>
+
+  <xacro:onrobot_ft_mount
+    parent="${ft_parent_link}"
+    prefix="$(arg ft_prefix)">
+    <origin xyz="$(arg xyz_onrobot)" rpy="$(arg rpy_onrobot)"/>
+  </xacro:onrobot_ft_mount>
+</robot>

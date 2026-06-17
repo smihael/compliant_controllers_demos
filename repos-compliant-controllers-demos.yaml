@@ -1,0 +1,35 @@
+repositories:
+  compliant_controllers:
+    type: git
+    url: https://github.com/smihael/compliant_controllers.git
+    version: master
+
+  compliant_controllers_msgs:
+    type: git
+    url: https://github.com/smihael/compliant_controllers_msgs.git
+    version: master
+
+  ros2_control_robot_dynamics:
+    type: git
+    url: https://github.com/smihael/ros2_control_robot_dynamics.git
+    version: master
+
+  compliant_controllers_demos:
+    type: git
+    url: https://github.com/smihael/compliant_controllers_demos.git
+    version: master
+
+  franka_spacemouse:
+    type: git
+    url: https://github.com/frankarobotics/franka_spacemouse.git
+    version: main
+
+  ros2_robotiq_gripper:
+    type: git
+    url: https://github.com/PickNikRobotics/ros2_robotiq_gripper.git
+    version: humble
+
+  serial:
+    type: git
+    url: https://github.com/tylerjw/serial.git
+    version: ros2
