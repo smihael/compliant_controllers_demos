@@ -3,7 +3,7 @@ ROBOT_1:
 
   cartesian_impedance_controller:
     ros__parameters:
-      add_friction_compensation: true
+      friction_compensation_enabled: true
       friction_compensation:
         model: hysteresis
         scale: 0.0

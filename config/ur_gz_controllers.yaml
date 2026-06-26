@@ -28,7 +28,7 @@
     init_k_ori: 10.0   # Increased for better stability
     base_frame: base_link
     ee_frame: tool0  # UR robots use 'tool0' as end-effector frame
-    add_gravity_compensation: true  # UR robots need explicit gravity compensation (Franka does it in hardware)
+    gravity_compensation_enabled: true  # UR robots need explicit gravity compensation (Franka does it in hardware)
     robot_description_node: robot_state_publisher
     robot_description_param: robot_description
     impl_library: libcartesian_impedance_impl.so
@@ -43,6 +43,22 @@
     # Also try to get robot_description locally if available
     robot_description: ''
 
+/joint_impedance_controller:
+  ros__parameters:
+    arm_id: ur10e
+    ee_frame: tool0
+    gravity_compensation_enabled: true
+    robot_description_node: robot_state_publisher
+    robot_description_param: robot_description
+    impl_library: libjoint_impedance_impl.so
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    robot_description: ''
 
 /ur10e_arm_controller:
   ros__parameters:

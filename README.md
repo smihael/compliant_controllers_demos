@@ -2,7 +2,7 @@
 
 Robot-specific launch and configuration demos for `compliant_controllers`.
 
-This package contains FR3/Panda, FR3 Gazebo, UR Gazebo, and LBR/IIWA Gazebo launch files plus the controller YAML and profile files needed by those demos.
+This package contains FR3/Panda, FR3 Gazebo, Flexiv EnlightL Gazebo, UR Gazebo, and LBR/IIWA Gazebo launch files plus the controller YAML and profile files needed by those demos.
 
 Main project: https://github.com/smihael/compliant_controllers
 
@@ -15,6 +15,9 @@ ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=cartesian
 ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=joint_impedance_controller
 ros2 launch compliant_controllers_demos fr3_robotiq.launch.py com_port:=/dev/ttyUSB0
 ros2 launch compliant_controllers_demos fr3_spacemouse_teleop.launch.py load_gripper:=false
+ros2 launch compliant_controllers_demos flexiv_gz.launch.py
+ros2 launch compliant_controllers_demos flexiv_gz.launch.py controller_name:=joint_impedance_controller
+ros2 launch compliant_controllers_demos flexiv_gz.launch.py show_gazebo_gui:=true
 ros2 launch compliant_controllers_demos ur_gz.launch.py ur_type:=ur10e
 ros2 launch compliant_controllers_demos lbr_gazebo.launch.py model:=iiwa14 ctrl:=cartesian_impedance_controller
 ```

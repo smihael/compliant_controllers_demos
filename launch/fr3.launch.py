@@ -41,6 +41,8 @@ def is_joint_controller(controller_name):
 def controller_include(context):
     controller_name = LaunchConfiguration('controller_name').perform(context)
     impl_library = LaunchConfiguration('impl_library').perform(context)
+    namespace = LaunchConfiguration('namespace').perform(context).strip('/')
+    robot_state_topic = f'/{namespace}/franka_robot_state_broadcaster/robot_state' if namespace else '/franka_robot_state_broadcaster/robot_state'
     if is_joint_controller(controller_name):
         launch_file = 'joint_wrapper.launch.py'
         launch_arguments = {
@@ -50,7 +52,7 @@ def controller_include(context):
             'ee_frame': LaunchConfiguration('ee_frame'),
             'robot_description_node': 'robot_state_publisher',
             'robot_description_param': 'robot_description',
-            'add_friction_compensation': LaunchConfiguration('add_friction_compensation'),
+            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
             'friction_model': LaunchConfiguration('friction_model'),
             'friction_scale': LaunchConfiguration('friction_scale'),
             'friction_use_gating': LaunchConfiguration('friction_use_gating'),
@@ -75,9 +77,11 @@ def controller_include(context):
             'robot_description_node': 'robot_state_publisher',
             'robot_description_param': 'robot_description',
             'end_effector_profile_node': 'end_effector_profile_server',
-            'add_gravity_compensation': LaunchConfiguration('add_gravity_compensation'),
-            'compensate_end_effector_load': LaunchConfiguration('compensate_end_effector_load'),
-            'add_friction_compensation': LaunchConfiguration('add_friction_compensation'),
+            'end_effector_robot_state_topic': robot_state_topic,
+            'tcp_enabled': LaunchConfiguration('tcp_enabled'),
+            'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
+            'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
+            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
             'friction_model': LaunchConfiguration('friction_model'),
             'friction_scale': LaunchConfiguration('friction_scale'),
             'friction_use_gating': LaunchConfiguration('friction_use_gating'),
@@ -142,9 +146,10 @@ def generate_launch_description():
         DeclareLaunchArgument('joint_max_power_enable_count', default_value='100'),
         DeclareLaunchArgument('ee_frame', default_value=''),
         DeclareLaunchArgument('base_frame', default_value=''),
-        DeclareLaunchArgument('add_gravity_compensation', default_value='false'),
-        DeclareLaunchArgument('compensate_end_effector_load', default_value='false'),
-        DeclareLaunchArgument('add_friction_compensation', default_value='false'),
+        DeclareLaunchArgument('tcp_enabled', default_value='true'),
+        DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
+        DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
+        DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_model', default_value='auto'),
         DeclareLaunchArgument('friction_scale', default_value='1.0'),
         DeclareLaunchArgument('friction_use_gating', default_value='true'),

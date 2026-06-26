@@ -66,8 +66,27 @@
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
       end_effector_profile_node: end_effector_profile_server
-      compensate_end_effector_load: false
+      tcp_enabled: true
+      end_effector.robot_state_topic: /fr3/franka_robot_state_broadcaster/robot_state
+      ee_load_compensation_enabled: false
       impl_library: libcartesian_impedance_impl.so
+      joints:
+        - fr3_joint1
+        - fr3_joint2
+        - fr3_joint3
+        - fr3_joint4
+        - fr3_joint5
+        - fr3_joint6
+        - fr3_joint7
+
+/**:
+  joint_impedance_controller:
+    ros__parameters:
+      arm_id: fr3
+      ee_frame: fr3_link8
+      robot_description_node: robot_state_publisher
+      robot_description_param: robot_description
+      impl_library: libjoint_impedance_impl.so
       joints:
         - fr3_joint1
         - fr3_joint2
@@ -86,9 +105,9 @@
       ee_frame: fr3_link8
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
-      compensate_end_effector_load: false
-      add_gravity_compensation: false
-      add_friction_compensation: false
+      ee_load_compensation_enabled: false
+      gravity_compensation_enabled: false
+      friction_compensation_enabled: false
       friction_compensation:
         scale: 0.0
       update_robot_config: true
@@ -115,9 +134,9 @@
       ee_frame: fr3_link8
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
-      compensate_end_effector_load: false
-      add_gravity_compensation: false
-      add_friction_compensation: false
+      ee_load_compensation_enabled: false
+      gravity_compensation_enabled: false
+      friction_compensation_enabled: false
       friction_compensation:
         scale: 0.0
       impl_library: libfriction_estimation_impl_v2.so
@@ -142,9 +161,10 @@
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
       end_effector_profile_node: end_effector_profile_server
-      compensate_end_effector_load: false
-      add_gravity_compensation: false
-      add_friction_compensation: false
+      tcp_enabled: true
+      ee_load_compensation_enabled: false
+      gravity_compensation_enabled: false
+      friction_compensation_enabled: false
       friction_compensation:
         model: hysteresis
         scale: 0.0

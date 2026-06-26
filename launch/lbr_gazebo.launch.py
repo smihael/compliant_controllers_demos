@@ -199,9 +199,9 @@ def generate_launch_description() -> LaunchDescription:
     ld.add_action(DeclareLaunchArgument("impl_library", default_value="libcartesian_impedance_impl.so"))
     ld.add_action(DeclareLaunchArgument("init_k_pos", default_value="200.0"))
     ld.add_action(DeclareLaunchArgument("init_k_ori", default_value="10.0"))
-    ld.add_action(DeclareLaunchArgument("add_gravity_compensation", default_value="true"))
-    ld.add_action(DeclareLaunchArgument("compensate_end_effector_load", default_value="false"))
-    ld.add_action(DeclareLaunchArgument("add_friction_compensation", default_value="false"))
+    ld.add_action(DeclareLaunchArgument("gravity_compensation_enabled", default_value="true"))
+    ld.add_action(DeclareLaunchArgument("ee_load_compensation_enabled", default_value="false"))
+    ld.add_action(DeclareLaunchArgument("friction_compensation_enabled", default_value="false"))
     ld.add_action(DeclareLaunchArgument("friction_model", default_value="auto"))
     ld.add_action(DeclareLaunchArgument("friction_scale", default_value="1.0"))
     ld.add_action(DeclareLaunchArgument("friction_use_gating", default_value="true"))
@@ -289,9 +289,9 @@ def generate_launch_description() -> LaunchDescription:
             "robot_description_node": ["/", robot_name, "/robot_state_publisher"],
             "robot_description_param": "robot_description",
             "load_end_effector_profile": "false",
-            "add_gravity_compensation": LaunchConfiguration("add_gravity_compensation"),
-            "compensate_end_effector_load": LaunchConfiguration("compensate_end_effector_load"),
-            "add_friction_compensation": LaunchConfiguration("add_friction_compensation"),
+            "gravity_compensation_enabled": LaunchConfiguration("gravity_compensation_enabled"),
+            "ee_load_compensation_enabled": LaunchConfiguration("ee_load_compensation_enabled"),
+            "friction_compensation_enabled": LaunchConfiguration("friction_compensation_enabled"),
             "friction_model": LaunchConfiguration("friction_model"),
             "friction_scale": LaunchConfiguration("friction_scale"),
             "friction_use_gating": LaunchConfiguration("friction_use_gating"),

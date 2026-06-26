@@ -83,4 +83,20 @@
     robot_description_node: /lbr/robot_state_publisher
     robot_description_param: robot_description
     impl_library: libcartesian_impedance_impl.so
-    add_gravity_compensation: true  
+    gravity_compensation_enabled: true  
+
+/**/joint_impedance_controller:
+  ros__parameters:
+    arm_id: lbr
+    ee_frame: lbr_link_ee
+    robot_description_node: /lbr/robot_state_publisher
+    robot_description_param: robot_description
+    impl_library: libjoint_impedance_impl.so
+    joints:
+      - lbr_A1
+      - lbr_A2
+      - lbr_A3
+      - lbr_A4
+      - lbr_A5
+      - lbr_A6
+      - lbr_A7

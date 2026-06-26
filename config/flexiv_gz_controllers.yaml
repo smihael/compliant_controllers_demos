@@ -1,81 +1,75 @@
 /controller_manager:
   ros__parameters:
-    update_rate: 1000  # Hz
+    update_rate: 1000
     cartesian_impedance_controller:
       type: compliant_controllers/GenericCartesianControllerWrapper
-
     joint_impedance_controller:
       type: compliant_controllers/GenericJointControllerWrapper
-
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
-
-    fr3_arm_controller:
+    flexiv_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-
 
 /cartesian_impedance_controller:
   ros__parameters:
-    arm_id: fr3
+    arm_id: ''
     init_k_pos: 200.0
     init_k_ori: 10.0
-    ee_frame: fr3_link8
+    ee_frame: flange
+    base_frame: base_link
     robot_description_node: robot_state_publisher
     robot_description_param: robot_description
-    end_effector_profile_node: end_effector_profile_server
-    tcp_enabled: true
-    end_effector.robot_state_topic: /fr3/franka_robot_state_broadcaster/robot_state
+    end_effector.profile_node: ''
     gravity_compensation_enabled: true
     ee_load_compensation_enabled: false
     impl_library: libcartesian_impedance_impl.so
     joints:
-      - fr3_joint1
-      - fr3_joint2
-      - fr3_joint3
-      - fr3_joint4
-      - fr3_joint5
-      - fr3_joint6
-      - fr3_joint7
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+      - joint7
 
 /joint_impedance_controller:
   ros__parameters:
-    arm_id: fr3
-    ee_frame: fr3_link8
+    arm_id: ''
     robot_description_node: robot_state_publisher
     robot_description_param: robot_description
     impl_library: libjoint_impedance_impl.so
     joints:
-      - fr3_joint1
-      - fr3_joint2
-      - fr3_joint3
-      - fr3_joint4
-      - fr3_joint5
-      - fr3_joint6
-      - fr3_joint7
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+      - joint7
 
-/fr3_arm_controller:
+/flexiv_arm_controller:
   ros__parameters:
     joints:
-      - fr3_joint1
-      - fr3_joint2
-      - fr3_joint3
-      - fr3_joint4
-      - fr3_joint5
-      - fr3_joint6
-      - fr3_joint7
+      - joint1
+      - joint2
+      - joint3
+      - joint4
+      - joint5
+      - joint6
+      - joint7
     command_interfaces:
       - effort
     state_interfaces:
       - position
       - velocity
     gains:
-      fr3_joint1: { p: 600., d: 30., i: 0., i_clamp: 1. }
-      fr3_joint2: { p: 600., d: 30., i: 0., i_clamp: 1. }
-      fr3_joint3: { p: 600., d: 30., i: 0., i_clamp: 1. }
-      fr3_joint4: { p: 600., d: 30., i: 0., i_clamp: 1. }
-      fr3_joint5: { p: 250., d: 10., i: 0., i_clamp: 1. }
-      fr3_joint6: { p: 150., d: 10., i: 0., i_clamp: 1. }
-      fr3_joint7: { p: 50., d: 5., i: 0., i_clamp: 1. }
+      joint1: { p: 600., d: 30., i: 0., i_clamp: 1. }
+      joint2: { p: 600., d: 30., i: 0., i_clamp: 1. }
+      joint3: { p: 600., d: 30., i: 0., i_clamp: 1. }
+      joint4: { p: 400., d: 20., i: 0., i_clamp: 1. }
+      joint5: { p: 250., d: 10., i: 0., i_clamp: 1. }
+      joint6: { p: 150., d: 10., i: 0., i_clamp: 1. }
+      joint7: { p: 50., d: 5., i: 0., i_clamp: 1. }
     allow_partial_joints_goal: false
     action_monitor_rate: 20.0
     state_publish_rate: 50.0

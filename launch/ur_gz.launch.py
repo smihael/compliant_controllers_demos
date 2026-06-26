@@ -142,9 +142,9 @@ def launch_setup(context, *args, **kwargs):
     impl_library = LaunchConfiguration("impl_library")
     init_k_pos = LaunchConfiguration("init_k_pos")
     init_k_ori = LaunchConfiguration("init_k_ori")
-    add_gravity_compensation = LaunchConfiguration("add_gravity_compensation")
-    compensate_end_effector_load = LaunchConfiguration("compensate_end_effector_load")
-    add_friction_compensation = LaunchConfiguration("add_friction_compensation")
+    gravity_compensation_enabled = LaunchConfiguration("gravity_compensation_enabled")
+    ee_load_compensation_enabled = LaunchConfiguration("ee_load_compensation_enabled")
+    friction_compensation_enabled = LaunchConfiguration("friction_compensation_enabled")
     friction_model = LaunchConfiguration("friction_model")
     friction_scale = LaunchConfiguration("friction_scale")
     friction_use_gating = LaunchConfiguration("friction_use_gating")
@@ -272,9 +272,9 @@ def launch_setup(context, *args, **kwargs):
             "robot_description_node": "/robot_state_publisher",
             "robot_description_param": "robot_description",
             "load_end_effector_profile": "false",
-            "add_gravity_compensation": add_gravity_compensation,
-            "compensate_end_effector_load": compensate_end_effector_load,
-            "add_friction_compensation": add_friction_compensation,
+            "gravity_compensation_enabled": gravity_compensation_enabled,
+            "ee_load_compensation_enabled": ee_load_compensation_enabled,
+            "friction_compensation_enabled": friction_compensation_enabled,
             "friction_model": friction_model,
             "friction_scale": friction_scale,
             "friction_use_gating": friction_use_gating,
@@ -413,9 +413,9 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("impl_library", default_value="libcartesian_impedance_impl.so"))
     declared_arguments.append(DeclareLaunchArgument("init_k_pos", default_value="150.0"))
     declared_arguments.append(DeclareLaunchArgument("init_k_ori", default_value="10.0"))
-    declared_arguments.append(DeclareLaunchArgument("add_gravity_compensation", default_value="true"))
-    declared_arguments.append(DeclareLaunchArgument("compensate_end_effector_load", default_value="false"))
-    declared_arguments.append(DeclareLaunchArgument("add_friction_compensation", default_value="false"))
+    declared_arguments.append(DeclareLaunchArgument("gravity_compensation_enabled", default_value="true"))
+    declared_arguments.append(DeclareLaunchArgument("ee_load_compensation_enabled", default_value="false"))
+    declared_arguments.append(DeclareLaunchArgument("friction_compensation_enabled", default_value="false"))
     declared_arguments.append(DeclareLaunchArgument("friction_model", default_value="auto"))
     declared_arguments.append(DeclareLaunchArgument("friction_scale", default_value="1.0"))
     declared_arguments.append(DeclareLaunchArgument("friction_use_gating", default_value="true"))
