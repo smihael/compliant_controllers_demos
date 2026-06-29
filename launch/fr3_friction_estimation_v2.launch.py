@@ -60,7 +60,7 @@ def generate_launch_description():
             'csv_file': LaunchConfiguration('csv_file'),
             'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
             'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
-            'diagnostic_mode': '1',
+            'diagnostic_log_filter_tag': '1',
             'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
         }.items(),
     )

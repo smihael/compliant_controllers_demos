@@ -207,7 +207,7 @@ def generate_launch_description() -> LaunchDescription:
     ld.add_action(DeclareLaunchArgument("friction_use_gating", default_value="true"))
     ld.add_action(DeclareLaunchArgument("diagnostic_log_file", default_value=""))
     ld.add_action(DeclareLaunchArgument("diagnostic_log_duration", default_value="0.0"))
-    ld.add_action(DeclareLaunchArgument("diagnostic_mode", default_value="0"))
+    ld.add_action(DeclareLaunchArgument("diagnostic_log_filter_tag", default_value="0"))
     ld.add_action(DeclareLaunchArgument("publish_world_to_base", default_value="true"))
     # Optional: Launch log level control
     ld.add_action(
@@ -297,7 +297,7 @@ def generate_launch_description() -> LaunchDescription:
             "friction_use_gating": LaunchConfiguration("friction_use_gating"),
             "diagnostic_log_file": LaunchConfiguration("diagnostic_log_file"),
             "diagnostic_log_duration": LaunchConfiguration("diagnostic_log_duration"),
-            "diagnostic_mode": LaunchConfiguration("diagnostic_mode"),
+            "diagnostic_log_filter_tag": LaunchConfiguration("diagnostic_log_filter_tag"),
             "publish_world_to_base": LaunchConfiguration("publish_world_to_base"),
         }.items(),
     )

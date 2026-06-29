@@ -1,6 +1,15 @@
 Panels:
   - Class: rviz_common/Displays
+    Help Height: 70
     Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /RobotModel1
+        - /RobotModel1/Status1
+        - /TF1
+        - /TF1/Frames1
+      Splitter Ratio: 0.5
+    Tree Height: 1067
 Visualization Manager:
   Class: ""
   Displays:
@@ -10,7 +19,7 @@ Visualization Manager:
       Color: 160; 160; 164
       Enabled: true
       Line Style:
-        Line Width: 0.03
+        Line Width: 0.029999999329447746
         Value: Lines
       Name: Grid
       Normal Cell Count: 0
@@ -32,27 +41,302 @@ Visualization Manager:
         Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fr3/robot_description
+        Value: /robot_description
       Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link0_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link0_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link1_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link1_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link2_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link2_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link3_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link3_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link4_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link4_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link5_accelerometer_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link5_accelerometer_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        fr3_link6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        fr3_link8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        onrobot_fts_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        onrobot_tool_mount_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        robotiq_85_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_left_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_left_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_left_inner_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_left_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_right_finger_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_right_finger_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_right_inner_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        robotiq_85_right_knuckle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Mass Properties:
+        Inertia: false
+        Mass: false
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
-      Enabled: false
+      Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
+        base:
+          Value: false
+        fr3_link0:
+          Value: false
+        fr3_link0_accelerometer_bottom:
+          Value: false
+        fr3_link0_accelerometer_top:
+          Value: false
+        fr3_link1:
+          Value: false
+        fr3_link1_accelerometer_bottom:
+          Value: false
+        fr3_link1_accelerometer_top:
+          Value: false
+        fr3_link2:
+          Value: false
+        fr3_link2_accelerometer_bottom:
+          Value: false
+        fr3_link2_accelerometer_top:
+          Value: false
+        fr3_link3:
+          Value: false
+        fr3_link3_accelerometer_bottom:
+          Value: false
+        fr3_link3_accelerometer_top:
+          Value: false
+        fr3_link4:
+          Value: false
+        fr3_link4_accelerometer_bottom:
+          Value: false
+        fr3_link4_accelerometer_top:
+          Value: false
+        fr3_link5:
+          Value: false
+        fr3_link5_accelerometer_bottom:
+          Value: false
+        fr3_link5_accelerometer_top:
+          Value: false
+        fr3_link6:
+          Value: false
+        fr3_link7:
+          Value: false
+        fr3_link8:
+          Value: false
+        onrobot_fts_link:
+          Value: false
+        onrobot_tool_mount_link:
+          Value: false
+        robotiq_85_base_link:
+          Value: false
+        robotiq_85_left_finger_link:
+          Value: false
+        robotiq_85_left_finger_tip_link:
+          Value: false
+        robotiq_85_left_inner_knuckle_link:
+          Value: false
+        robotiq_85_left_knuckle_link:
+          Value: false
+        robotiq_85_right_finger_link:
+          Value: false
+        robotiq_85_right_finger_tip_link:
+          Value: false
+        robotiq_85_right_inner_knuckle_link:
+          Value: false
+        robotiq_85_right_knuckle_link:
+          Value: false
+        world:
+          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: false
       Tree:
-        {}
+        world:
+          fr3_link0:
+            fr3_link0_accelerometer_bottom:
+              {}
+            fr3_link0_accelerometer_top:
+              {}
+            fr3_link1:
+              fr3_link1_accelerometer_bottom:
+                {}
+              fr3_link1_accelerometer_top:
+                {}
+              fr3_link2:
+                fr3_link2_accelerometer_bottom:
+                  {}
+                fr3_link2_accelerometer_top:
+                  {}
+                fr3_link3:
+                  fr3_link3_accelerometer_bottom:
+                    {}
+                  fr3_link3_accelerometer_top:
+                    {}
+                  fr3_link4:
+                    fr3_link4_accelerometer_bottom:
+                      {}
+                    fr3_link4_accelerometer_top:
+                      {}
+                    fr3_link5:
+                      fr3_link5_accelerometer_bottom:
+                        {}
+                      fr3_link5_accelerometer_top:
+                        {}
+                      fr3_link6:
+                        fr3_link7:
+                          fr3_link8:
+                            onrobot_fts_link:
+                              onrobot_tool_mount_link:
+                                robotiq_85_base_link:
+                                  robotiq_85_left_inner_knuckle_link:
+                                    {}
+                                  robotiq_85_left_knuckle_link:
+                                    robotiq_85_left_finger_link:
+                                      robotiq_85_left_finger_tip_link:
+                                        {}
+                                  robotiq_85_right_inner_knuckle_link:
+                                    {}
+                                  robotiq_85_right_knuckle_link:
+                                    robotiq_85_right_finger_link:
+                                      robotiq_85_right_finger_tip_link:
+                                        {}
       Update Interval: 0
-      Value: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -72,30 +356,33 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.7
+      Distance: 2.864429235458374
       Enable Stereo Rendering:
-        Stereo Eye Separation: 0.06
+        Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
         X: 0
         Y: 0
-        Z: 0.35
+        Z: 0.3499999940395355
       Focal Shape Fixed Size: true
-      Focal Shape Size: 0.05
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
-      Near Clip Distance: 0.01
-      Pitch: 0.25
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.2399997115135193
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.57
+      Yaw: 0.49501001834869385
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 900
+  Height: 1288
   Hide Left Dock: false
   Hide Right Dock: false
-  Width: 1400
+  QMainWindow State: 000000ff00000000fd000000010000000000000290000004aefc0200000001fb000000100044006900730070006c006100790073010000003d000004ae000000c900ffffff000004ce000004ae00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Width: 1892
+  X: 120
+  Y: 77

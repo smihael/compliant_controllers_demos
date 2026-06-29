@@ -50,7 +50,7 @@ def generate_launch_description():
             'friction_use_gating': 'true',
             'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
             'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
-            'diagnostic_mode': '2',
+            'diagnostic_log_filter_tag': '2',
         }.items(),
     )
 

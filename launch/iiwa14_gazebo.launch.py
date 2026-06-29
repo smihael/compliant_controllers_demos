@@ -161,7 +161,7 @@ def _build_runtime_nodes(context: LaunchContext, controller_name, publish_world_
             'friction_use_gating': LaunchConfiguration('friction_use_gating'),
             'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
             'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
-            'diagnostic_mode': LaunchConfiguration('diagnostic_mode'),
+            'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
         }.items(),
     )
@@ -237,7 +237,7 @@ def generate_launch_description():
         DeclareLaunchArgument('friction_use_gating', default_value='true'),
         DeclareLaunchArgument('diagnostic_log_file', default_value=''),
         DeclareLaunchArgument('diagnostic_log_duration', default_value='0.0'),
-        DeclareLaunchArgument('diagnostic_mode', default_value='0'),
+        DeclareLaunchArgument('diagnostic_log_filter_tag', default_value='0'),
         DeclareLaunchArgument(
             'world',
             default_value='empty.sdf',

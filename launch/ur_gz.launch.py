@@ -150,7 +150,7 @@ def launch_setup(context, *args, **kwargs):
     friction_use_gating = LaunchConfiguration("friction_use_gating")
     diagnostic_log_file = LaunchConfiguration("diagnostic_log_file")
     diagnostic_log_duration = LaunchConfiguration("diagnostic_log_duration")
-    diagnostic_mode = LaunchConfiguration("diagnostic_mode")
+    diagnostic_log_filter_tag = LaunchConfiguration("diagnostic_log_filter_tag")
     publish_world_to_base = LaunchConfiguration("publish_world_to_base")
     
     # Get controllers config from compliant_controllers
@@ -280,7 +280,7 @@ def launch_setup(context, *args, **kwargs):
             "friction_use_gating": friction_use_gating,
             "diagnostic_log_file": diagnostic_log_file,
             "diagnostic_log_duration": diagnostic_log_duration,
-            "diagnostic_mode": diagnostic_mode,
+            "diagnostic_log_filter_tag": diagnostic_log_filter_tag,
             "publish_world_to_base": publish_world_to_base,
         }.items(),
     )
@@ -421,7 +421,7 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("friction_use_gating", default_value="true"))
     declared_arguments.append(DeclareLaunchArgument("diagnostic_log_file", default_value=""))
     declared_arguments.append(DeclareLaunchArgument("diagnostic_log_duration", default_value="0.0"))
-    declared_arguments.append(DeclareLaunchArgument("diagnostic_mode", default_value="0"))
+    declared_arguments.append(DeclareLaunchArgument("diagnostic_log_filter_tag", default_value="0"))
     declared_arguments.append(DeclareLaunchArgument("publish_world_to_base", default_value="true"))
     declared_arguments.append(
         DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?")
