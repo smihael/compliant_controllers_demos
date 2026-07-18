@@ -152,7 +152,6 @@ def _build_runtime_nodes(context: LaunchContext, controller_name, publish_world_
             'base_frame': 'lbr_link_0',
             'robot_description_node': f'/{arm_id_str}/robot_state_publisher',
             'robot_description_param': 'robot_description',
-            'load_end_effector_profile': 'false',
             'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
             'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),

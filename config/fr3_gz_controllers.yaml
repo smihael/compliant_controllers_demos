@@ -22,8 +22,6 @@
     ee_frame: fr3_link8
     robot_description_node: robot_state_publisher
     robot_description_param: robot_description
-    end_effector_profile_node: end_effector_profile_server
-    tcp_enabled: true
     end_effector.robot_state_topic: /fr3/franka_robot_state_broadcaster/robot_state
     gravity_compensation_enabled: true
     ee_load_compensation_enabled: false

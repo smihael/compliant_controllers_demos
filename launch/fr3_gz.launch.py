@@ -4,10 +4,7 @@ Mirrors real robot launch style while adding a debug flag and optional world->ba
 """
 
 import os
-import json
-import tempfile
 import xacro
-import yaml
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription, LaunchContext
@@ -25,82 +22,10 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-def _profile_to_controller_params(profile_path):
-    with open(profile_path, 'r', encoding='utf-8') as handle:
-        profile = json.load(handle)
-
-    inertial = profile.get('inertial', {})
-    center_of_mass = inertial.get('centerOfMass', {})
-    inertia = inertial.get('inertia', {})
-
-    def number(data, key, default=0.0):
-        return float(data.get(key, default))
-
-    return {
-        'end_effector.use_tcp': True,
-        'end_effector.profile_node': 'end_effector_profile_server',
-        'end_effector_profile.id': str(profile.get('id', '')),
-        'end_effector_profile.name': str(profile.get('name', '')),
-        'end_effector_profile.device_id': str(profile.get('deviceId', '')),
-        'end_effector.load.mass': number(inertial, 'mass'),
-        'end_effector.load.center_of_mass': [
-            number(center_of_mass, 'x'),
-            number(center_of_mass, 'y'),
-            number(center_of_mass, 'z'),
-        ],
-        'end_effector.load.inertia': [
-            number(inertia, 'x11'),
-            number(inertia, 'x12'),
-            number(inertia, 'x13'),
-            number(inertia, 'x12'),
-            number(inertia, 'x22'),
-            number(inertia, 'x23'),
-            number(inertia, 'x13'),
-            number(inertia, 'x23'),
-            number(inertia, 'x33'),
-        ],
-        'end_effector_profile.load.mass': number(inertial, 'mass'),
-        'end_effector_profile.load.center_of_mass': [
-            number(center_of_mass, 'x'),
-            number(center_of_mass, 'y'),
-            number(center_of_mass, 'z'),
-        ],
-        'end_effector_profile.load.inertia': [
-            number(inertia, 'x11'),
-            number(inertia, 'x12'),
-            number(inertia, 'x13'),
-            number(inertia, 'x12'),
-            number(inertia, 'x22'),
-            number(inertia, 'x23'),
-            number(inertia, 'x13'),
-            number(inertia, 'x23'),
-            number(inertia, 'x33'),
-        ],
-        'end_effector_profile.raw_json': json.dumps(profile, separators=(',', ':')),
-    }
-
-
-def _controller_yaml_with_profile(base_yaml, profile_path, enabled):
-    if not enabled:
-        return base_yaml
-
-    with open(base_yaml, 'r', encoding='utf-8') as handle:
-        config = yaml.safe_load(handle)
-
-    controller_params = config.setdefault('/cartesian_impedance_controller', {}).setdefault('ros__parameters', {})
-    controller_params.update(_profile_to_controller_params(profile_path))
-
-    with tempfile.NamedTemporaryFile('w', encoding='utf-8', suffix='.yaml', delete=False) as handle:
-        yaml.safe_dump(config, handle, sort_keys=False)
-        return handle.name
-
-
-def _build_robot_description(context: LaunchContext, arm_id, load_gripper, franka_hand, load_end_effector_profile, end_effector_profile):
+def _build_robot_description(context: LaunchContext, arm_id, load_gripper, franka_hand):
     arm_id_str = context.perform_substitution(arm_id)
     load_gripper_str = context.perform_substitution(load_gripper)
     franka_hand_str = context.perform_substitution(franka_hand)
-    load_profile = context.perform_substitution(load_end_effector_profile).lower() in ('true', '1', 'yes')
-    profile_path = context.perform_substitution(end_effector_profile)
 
     franka_xacro = os.path.join(
         get_package_share_directory('franka_description'),
@@ -125,7 +50,6 @@ def _build_robot_description(context: LaunchContext, arm_id, load_gripper, frank
         get_package_share_directory('compliant_controllers_demos'),
         'config', 'fr3_gz_controllers.yaml'
     )
-    custom_yaml = _controller_yaml_with_profile(custom_yaml, profile_path, load_profile)
     urdf_xml = xacro_doc.toxml().replace(default_yaml, custom_yaml)
     return [Node(
         package='robot_state_publisher', executable='robot_state_publisher', name='robot_state_publisher',
@@ -198,22 +122,19 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
             'power_enable_tau_norm_threshold': LaunchConfiguration('joint_power_enable_tau_norm_threshold'),
             'max_power_enable_count': LaunchConfiguration('joint_max_power_enable_count'),
         }
-        else:
-            controller_launch_file = 'cartesian_wrapper.launch.py'
-            controller_launch_arguments = {
-                'namespace': LaunchConfiguration('namespace'),
-                'arm_id': LaunchConfiguration('arm_id'),
+    else:
+        controller_launch_file = 'cartesian_wrapper.launch.py'
+        controller_launch_arguments = {
+            'namespace': LaunchConfiguration('namespace'),
+            'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
             'controller_manager': controller_manager,
             'init_k_pos': LaunchConfiguration('init_k_pos'),
             'init_k_ori': LaunchConfiguration('init_k_ori'),
-                'ee_frame': LaunchConfiguration('ee_frame'),
-                'base_frame': LaunchConfiguration('base_frame'),
-                'robot_description_node': '/robot_state_publisher',
-                'robot_description_param': 'robot_description',
-                'end_effector_profile_node': 'end_effector_profile_server',
-                'end_effector_robot_state_topic': f'/{namespace}/franka_robot_state_broadcaster/robot_state' if namespace else '/franka_robot_state_broadcaster/robot_state',
-            'tcp_enabled': LaunchConfiguration('tcp_enabled'),
+            'ee_frame': LaunchConfiguration('ee_frame'),
+            'base_frame': LaunchConfiguration('base_frame'),
+            'robot_description_node': '/robot_state_publisher',
+            'robot_description_param': 'robot_description',
             'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
             'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
@@ -224,8 +145,6 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
             'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
             'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
-            'load_end_effector_profile': LaunchConfiguration('load_end_effector_profile'),
-            'end_effector_profile': LaunchConfiguration('end_effector_profile'),
         }
     controller_launch_arguments['impl_library'] = impl_library or (
         'libjoint_impedance_impl.so' if _is_joint_controller(controller_name)
@@ -270,12 +189,6 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
 
 
 def generate_launch_description():
-    default_end_effector_profile = os.path.join(
-        get_package_share_directory('compliant_controllers_demos'),
-        'config',
-        'franka_hand_default.endeffector-profile.json'
-    )
-
     declared_args = [
         DeclareLaunchArgument('arm_id', default_value='fr3', description='Arm identifier'),
         DeclareLaunchArgument('namespace', default_value='', description='Robot namespace'),
@@ -293,7 +206,6 @@ def generate_launch_description():
         DeclareLaunchArgument('joint_max_power_enable_count', default_value='100'),
         DeclareLaunchArgument('ee_frame', default_value=''),
         DeclareLaunchArgument('base_frame', default_value=''),
-        DeclareLaunchArgument('tcp_enabled', default_value='true'),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value='true'),
         DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
@@ -308,8 +220,6 @@ def generate_launch_description():
         DeclareLaunchArgument('show_rviz', default_value='true', description='Launch RViz'),
         DeclareLaunchArgument('publish_world_to_base', default_value='true', description='Publish static world->base TF'),
         DeclareLaunchArgument('controller_debug', default_value='false', description='Enable debug logging for controller_manager (Gazebo process)'),
-        DeclareLaunchArgument('load_end_effector_profile', default_value='true', description='Start end-effector profile parameter server'),
-        DeclareLaunchArgument('end_effector_profile', default_value=default_end_effector_profile, description='Path to end-effector profile JSON'),
     ]
 
     arm_id = LaunchConfiguration('arm_id')
@@ -319,10 +229,8 @@ def generate_launch_description():
     show_gazebo_gui = LaunchConfiguration('show_gazebo_gui')
     controller_debug = LaunchConfiguration('controller_debug')
     show_rviz = LaunchConfiguration('show_rviz')
-    load_end_effector_profile = LaunchConfiguration('load_end_effector_profile')
-    end_effector_profile = LaunchConfiguration('end_effector_profile')
-
-    robot_description = OpaqueFunction(function=_build_robot_description, args=[arm_id, load_gripper, franka_hand, load_end_effector_profile, end_effector_profile])
+    robot_description = OpaqueFunction(
+        function=_build_robot_description, args=[arm_id, load_gripper, franka_hand])
     os.environ['GZ_SIM_RESOURCE_PATH'] = os.path.dirname(get_package_share_directory('franka_description'))
     set_controller_debug = SetEnvironmentVariable(name='CONTROLLER_DEBUG', value=controller_debug)
     gazebo = OpaqueFunction(function=_gazebo_include, args=[world, show_gazebo_gui, controller_debug])

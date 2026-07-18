@@ -37,6 +37,23 @@
   <xacro:property name="robotiq_parent_link"
     value="${default_robotiq_parent if robotiq_parent_arg == '' else robotiq_parent_arg}"/>
 
+  <!--
+    This should match end-effector profile from Franka Desk, but we omit inertial properties here since they are not used in the simulation.
+  -->
+  <joint name="franka_desk_ee_joint" type="fixed">
+    <parent link="${default_ft_parent}"/>
+    <child link="franka_desk_ee"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <link name="franka_desk_ee"/>
+
+  <joint name="franka_desk_ee_tcp_joint" type="fixed">
+    <parent link="franka_desk_ee"/>
+    <child link="franka_desk_ee_tcp"/>
+    <origin xyz="0 0 0.195" rpy="0 0 -1.5707963267948966"/>
+  </joint>
+  <link name="franka_desk_ee_tcp"/>
+
   <xacro:macro name="onrobot_ft_mount" params="prefix parent *origin">
     <joint name="${prefix}fts_joint" type="fixed">
       <parent link="${parent}"/>

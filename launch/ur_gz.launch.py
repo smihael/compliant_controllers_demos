@@ -271,7 +271,6 @@ def launch_setup(context, *args, **kwargs):
             "base_frame": f"{prefix_str}base_link",
             "robot_description_node": "/robot_state_publisher",
             "robot_description_param": "robot_description",
-            "load_end_effector_profile": "false",
             "gravity_compensation_enabled": gravity_compensation_enabled,
             "ee_load_compensation_enabled": ee_load_compensation_enabled,
             "friction_compensation_enabled": friction_compensation_enabled,

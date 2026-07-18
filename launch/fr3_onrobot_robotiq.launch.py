@@ -1,13 +1,15 @@
 import os
+import tempfile
 import yaml
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.conditions import IfCondition
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -32,6 +34,150 @@ def load_robot_profile(defaults, profile_name):
     return profile
 
 
+def is_true(value):
+    return str(value).lower() in ('1', 'true', 'yes', 'on')
+
+
+def is_joint_controller(controller_name):
+    return controller_name == 'joint_impedance_controller'
+
+
+def robot_description_command(robot_model):
+    return [
+        'xacro ', robot_model,
+        ' robot_type:=', LaunchConfiguration('robot_type'),
+        ' arm_prefix:=', LaunchConfiguration('arm_prefix'),
+        ' no_prefix:=', LaunchConfiguration('no_prefix'),
+        ' ros2_control:=', LaunchConfiguration('launch_fr3_control'),
+        ' robot_ip:=', LaunchConfiguration('robot_ip'),
+        ' use_fake_hardware:=', LaunchConfiguration('use_fake_hardware'),
+        ' mock_sensor_commands:=', LaunchConfiguration('mock_sensor_commands'),
+        ' include_ros2_control:=false',
+        ' ft_prefix:=', LaunchConfiguration('ft_prefix'),
+        ' ft_parent:=', LaunchConfiguration('ft_parent'),
+        ' xyz_onrobot:="', LaunchConfiguration('xyz_onrobot'), '"',
+        ' rpy_onrobot:="', LaunchConfiguration('rpy_onrobot'), '"',
+        ' robotiq_prefix:=', LaunchConfiguration('robotiq_prefix'),
+        ' robotiq_parent:=', LaunchConfiguration('robotiq_parent'),
+        ' xyz_robotiq:="', LaunchConfiguration('xyz_robotiq'), '"',
+        ' rpy_robotiq:="', LaunchConfiguration('rpy_robotiq'), '"',
+    ]
+
+
+def controller_include(context):
+    if not is_true(LaunchConfiguration('launch_fr3_control').perform(context)):
+        return []
+
+    controller_name = LaunchConfiguration('controller_name').perform(context)
+    impl_library = LaunchConfiguration('impl_library').perform(context)
+    if is_joint_controller(controller_name):
+        launch_file = 'joint_wrapper.launch.py'
+        launch_arguments = {
+            'namespace': LaunchConfiguration('namespace'),
+            'arm_id': LaunchConfiguration('arm_id'),
+            'controller_name': LaunchConfiguration('controller_name'),
+            'ee_frame': LaunchConfiguration('ee_frame'),
+            'robot_description_node': 'robot_state_publisher',
+            'robot_description_param': 'robot_description',
+            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
+            'friction_model': LaunchConfiguration('friction_model'),
+            'friction_scale': LaunchConfiguration('friction_scale'),
+            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
+        }
+    else:
+        launch_file = 'cartesian_wrapper.launch.py'
+        launch_arguments = {
+            'robot_profile': LaunchConfiguration('robot_profile'),
+            'namespace': LaunchConfiguration('namespace'),
+            'arm_id': LaunchConfiguration('arm_id'),
+            'controller_name': LaunchConfiguration('controller_name'),
+            'init_k_pos': LaunchConfiguration('init_k_pos'),
+            'init_k_ori': LaunchConfiguration('init_k_ori'),
+            'ee_frame': LaunchConfiguration('ee_frame'),
+            'base_frame': LaunchConfiguration('base_frame'),
+            'robot_description_node': 'robot_state_publisher',
+            'robot_description_param': 'robot_description',
+            'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
+            'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
+            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
+            'friction_model': LaunchConfiguration('friction_model'),
+            'friction_scale': LaunchConfiguration('friction_scale'),
+            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
+            'plugin_params_file': LaunchConfiguration('plugin_params_file'),
+            'csv_file': LaunchConfiguration('csv_file'),
+            'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
+            'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
+            'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
+            'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
+            'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
+        }
+    launch_arguments['impl_library'] = impl_library or (
+        'libjoint_impedance_impl.so' if is_joint_controller(controller_name)
+        else 'libcartesian_impedance_impl.so'
+    )
+    return [IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            FindPackageShare('compliant_controllers'), 'launch', launch_file,
+        ])),
+        launch_arguments=launch_arguments.items(),
+    )]
+
+
+def fr3_control_nodes(context, robot_model):
+    if not is_true(LaunchConfiguration('launch_fr3_control').perform(context)):
+        return []
+
+    namespace = LaunchConfiguration('namespace').perform(context).strip('/')
+    description_topic = f'/{namespace}/robot_description' if namespace else '/robot_description'
+    broadcaster_key = f'/{namespace}/franka_robot_state_broadcaster' if namespace else '/franka_robot_state_broadcaster'
+    broadcaster_params = os.path.join(
+        tempfile.gettempdir(),
+        f'fr3_onrobot_robotiq_state_broadcaster_{namespace or "root"}.yaml',
+    )
+    description = Command(robot_description_command(robot_model)).perform(context)
+    with open(broadcaster_params, 'w', encoding='utf-8') as stream:
+        yaml.safe_dump({broadcaster_key: {'ros__parameters': {
+            'robot_description': description,
+        }}}, stream, sort_keys=False)
+
+    return [
+        Node(
+            package='controller_manager', executable='ros2_control_node',
+            namespace=LaunchConfiguration('namespace'),
+            parameters=[
+                PathJoinSubstitution([FindPackageShare('compliant_controllers_demos'),
+                                      'config', 'fr3_controllers.yaml']),
+                {'robot_type': LaunchConfiguration('robot_type')},
+                {'load_gripper': False},
+                {'arm_prefix': LaunchConfiguration('arm_prefix')},
+            ],
+            remappings=[('joint_states', 'franka/joint_states'),
+                        ('~/robot_description', description_topic)],
+            output='screen',
+        ),
+        Node(
+            package='joint_state_publisher', executable='joint_state_publisher',
+            name='joint_state_publisher', namespace=LaunchConfiguration('namespace'),
+            parameters=[{'source_list': ['franka/joint_states', 'franka_gripper/joint_states'],
+                         'rate': ParameterValue(LaunchConfiguration('joint_state_rate'), value_type=int),
+                         'use_robot_description': False}],
+            output='screen',
+        ),
+        Node(
+            package='controller_manager', executable='spawner',
+            namespace=LaunchConfiguration('namespace'),
+            arguments=['joint_state_broadcaster'], output='screen',
+        ),
+        Node(
+            package='controller_manager', executable='spawner',
+            namespace=LaunchConfiguration('namespace'),
+            arguments=['franka_robot_state_broadcaster', '--param-file', broadcaster_params],
+            condition=UnlessCondition(LaunchConfiguration('use_fake_hardware')),
+            output='screen',
+        ),
+    ]
+
+
 def generate_launch_description():
     robot_profile = os.environ.get('COMPLIANT_ROBOT_PROFILE', 'ROBOT_1')
     robot_cfg = load_robot_profile({
@@ -52,12 +198,13 @@ def generate_launch_description():
         DeclareLaunchArgument('arm_prefix', default_value=''),
         DeclareLaunchArgument('namespace', default_value='fr3'),
         DeclareLaunchArgument('robot_ip', default_value=str(robot_cfg.get('robot_ip', '192.168.1.1'))),
+        DeclareLaunchArgument('launch_fr3_control', default_value='true'),
         DeclareLaunchArgument('no_prefix', default_value='false'),
         DeclareLaunchArgument('ft_prefix', default_value='onrobot_'),
         DeclareLaunchArgument('ft_parent', default_value=''),
         DeclareLaunchArgument('xyz_onrobot', default_value='0 0 0'),
         DeclareLaunchArgument('rpy_onrobot', default_value='0 0 -1.5707963267948966'),
-        DeclareLaunchArgument('onrobot_ip_address', default_value='192.168.1.1'),
+        DeclareLaunchArgument('onrobot_ip_address', default_value='192.168.1.4'),
         DeclareLaunchArgument('onrobot_sensor_id', default_value='onrobot_ft'),
         DeclareLaunchArgument('onrobot_topic_name', default_value='wrench'),
         DeclareLaunchArgument('onrobot_port', default_value='49152'),
@@ -74,22 +221,15 @@ def generate_launch_description():
         DeclareLaunchArgument('rpy_robotiq', default_value='0 0 0'),
         DeclareLaunchArgument('use_fake_hardware', default_value='false'),
         DeclareLaunchArgument('mock_sensor_commands', default_value='false'),
+        DeclareLaunchArgument('launch_robotiq_server', default_value='true'),
         DeclareLaunchArgument('com_port', default_value='/dev/ttyUSB0'),
         DeclareLaunchArgument('joint_state_rate', default_value='30'),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller'),
         DeclareLaunchArgument('impl_library', default_value='libcartesian_impedance_impl.so'),
         DeclareLaunchArgument('init_k_pos', default_value='200.0'),
         DeclareLaunchArgument('init_k_ori', default_value='10.0'),
-        DeclareLaunchArgument('ee_frame', default_value=''),
+        DeclareLaunchArgument('ee_frame', default_value='franka_desk_ee_tcp'),
         DeclareLaunchArgument('base_frame', default_value='base'),
-        DeclareLaunchArgument('tcp_enabled', default_value='true'),
-        DeclareLaunchArgument('tcp_x', default_value='0.0'),
-        DeclareLaunchArgument('tcp_y', default_value='0.0'),
-        DeclareLaunchArgument('tcp_z', default_value='0.195'),
-        DeclareLaunchArgument('tcp_roll', default_value='0.0'),
-        DeclareLaunchArgument('tcp_pitch', default_value='0.0'),
-        DeclareLaunchArgument('tcp_yaw', default_value='0.0'),
-        DeclareLaunchArgument('end_effector_profile_node', default_value=''),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
@@ -103,8 +243,6 @@ def generate_launch_description():
         DeclareLaunchArgument('diagnostic_log_filter_tag', default_value='0'),
         DeclareLaunchArgument('shutdown_on_done', default_value='false'),
         DeclareLaunchArgument('publish_world_to_base', default_value='true'),
-        DeclareLaunchArgument('load_end_effector_profile', default_value='false'),
-        DeclareLaunchArgument('end_effector_profile', default_value=''),
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('rviz_config', default_value=PathJoinSubstitution([
             FindPackageShare('compliant_controllers_demos'),
@@ -114,55 +252,17 @@ def generate_launch_description():
         DeclareLaunchArgument('fixed_frame', default_value='fr3_link0'),
     ]
 
-    include_fr3 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution([
-                FindPackageShare('compliant_controllers_demos'),
-                'launch',
-                'fr3.launch.py',
-            ])
-        ),
-        launch_arguments={
-            'robot_profile': LaunchConfiguration('robot_profile'),
-            'robot_type': LaunchConfiguration('robot_type'),
-            'arm_id': LaunchConfiguration('arm_id'),
-            'arm_prefix': LaunchConfiguration('arm_prefix'),
-            'namespace': LaunchConfiguration('namespace'),
-            'robot_ip': LaunchConfiguration('robot_ip'),
-            'load_gripper': 'false',
-            'joint_state_rate': LaunchConfiguration('joint_state_rate'),
-            'controller_name': LaunchConfiguration('controller_name'),
-            'impl_library': LaunchConfiguration('impl_library'),
-            'init_k_pos': LaunchConfiguration('init_k_pos'),
-            'init_k_ori': LaunchConfiguration('init_k_ori'),
-            'ee_frame': LaunchConfiguration('ee_frame'),
-            'base_frame': LaunchConfiguration('base_frame'),
-            'tcp_enabled': LaunchConfiguration('tcp_enabled'),
-            'tcp_x': LaunchConfiguration('tcp_x'),
-            'tcp_y': LaunchConfiguration('tcp_y'),
-            'tcp_z': LaunchConfiguration('tcp_z'),
-            'tcp_roll': LaunchConfiguration('tcp_roll'),
-            'tcp_pitch': LaunchConfiguration('tcp_pitch'),
-            'tcp_yaw': LaunchConfiguration('tcp_yaw'),
-            'end_effector_profile_node': LaunchConfiguration('end_effector_profile_node'),
-            'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
-            'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
-            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
-            'friction_model': LaunchConfiguration('friction_model'),
-            'friction_scale': LaunchConfiguration('friction_scale'),
-            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
-            'plugin_params_file': LaunchConfiguration('plugin_params_file'),
-            'csv_file': LaunchConfiguration('csv_file'),
-            'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
-            'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
-            'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
-            'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
-            'use_rviz': 'false',
-            'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
-            'load_end_effector_profile': LaunchConfiguration('load_end_effector_profile'),
-            'end_effector_profile': LaunchConfiguration('end_effector_profile'),
-        }.items(),
+    robot_description = {
+        'robot_description': ParameterValue(
+            Command(robot_description_command(robotiq_model)), value_type=str),
+    }
+    description_publisher = Node(
+        package='robot_state_publisher', executable='robot_state_publisher',
+        name='robot_state_publisher', namespace=LaunchConfiguration('namespace'),
+        parameters=[robot_description], output='screen',
     )
+    control_nodes = OpaqueFunction(function=fr3_control_nodes, args=[robotiq_model])
+    include_controller = OpaqueFunction(function=controller_include)
 
     include_robotiq = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -195,6 +295,7 @@ def generate_launch_description():
             'launch_rviz': 'false',
             'com_port': LaunchConfiguration('com_port'),
         }.items(),
+        condition=IfCondition(LaunchConfiguration('launch_robotiq_server')),
     )
 
     include_onrobot = IncludeLaunchDescription(
@@ -233,7 +334,9 @@ def generate_launch_description():
 
     return LaunchDescription(declared_args + [
         rviz,
-        include_fr3,
+        description_publisher,
+        control_nodes,
+        include_controller,
         include_robotiq,
         include_onrobot,
     ])

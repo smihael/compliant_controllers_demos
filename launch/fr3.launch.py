@@ -76,15 +76,6 @@ def controller_include(context):
             'base_frame': LaunchConfiguration('base_frame'),
             'robot_description_node': 'robot_state_publisher',
             'robot_description_param': 'robot_description',
-            'end_effector_profile_node': LaunchConfiguration('end_effector_profile_node'),
-            'end_effector_robot_state_topic': robot_state_topic,
-            'tcp_enabled': LaunchConfiguration('tcp_enabled'),
-            'tcp_x': LaunchConfiguration('tcp_x'),
-            'tcp_y': LaunchConfiguration('tcp_y'),
-            'tcp_z': LaunchConfiguration('tcp_z'),
-            'tcp_roll': LaunchConfiguration('tcp_roll'),
-            'tcp_pitch': LaunchConfiguration('tcp_pitch'),
-            'tcp_yaw': LaunchConfiguration('tcp_yaw'),
             'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
             'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
@@ -98,8 +89,6 @@ def controller_include(context):
             'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
             'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
-            'load_end_effector_profile': LaunchConfiguration('load_end_effector_profile'),
-            'end_effector_profile': LaunchConfiguration('end_effector_profile'),
         }
     launch_arguments['impl_library'] = impl_library or (
         'libjoint_impedance_impl.so' if is_joint_controller(controller_name)
@@ -125,12 +114,6 @@ def generate_launch_description():
         'robot_ip': '192.168.1.1',
     }, robot_profile)
 
-    default_end_effector_profile = os.path.join(
-        get_package_share_directory('compliant_controllers_demos'),
-        'config',
-        'franka_hand_default.endeffector-profile.json',
-    )
-
     declared_args = [
         DeclareLaunchArgument('robot_profile', default_value=robot_profile),
         DeclareLaunchArgument('robot_type', default_value=str(robot_cfg.get('robot_type', robot_cfg.get('robot_name', 'fr3')))),
@@ -152,14 +135,6 @@ def generate_launch_description():
         DeclareLaunchArgument('joint_max_power_enable_count', default_value='100'),
         DeclareLaunchArgument('ee_frame', default_value=''),
         DeclareLaunchArgument('base_frame', default_value='base'),
-        DeclareLaunchArgument('tcp_enabled', default_value='true'),
-        DeclareLaunchArgument('tcp_x', default_value='0.0'),
-        DeclareLaunchArgument('tcp_y', default_value='0.0'),
-        DeclareLaunchArgument('tcp_z', default_value='0.195'),
-        DeclareLaunchArgument('tcp_roll', default_value='0.0'),
-        DeclareLaunchArgument('tcp_pitch', default_value='0.0'),
-        DeclareLaunchArgument('tcp_yaw', default_value='0.0'),
-        DeclareLaunchArgument('end_effector_profile_node', default_value=''),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
@@ -174,8 +149,6 @@ def generate_launch_description():
         DeclareLaunchArgument('shutdown_on_done', default_value='false'),
         DeclareLaunchArgument('use_rviz', default_value='false'),
         DeclareLaunchArgument('publish_world_to_base', default_value='true'),
-        DeclareLaunchArgument('load_end_effector_profile', default_value='false'),
-        DeclareLaunchArgument('end_effector_profile', default_value=default_end_effector_profile),
     ]
 
     include_franka = IncludeLaunchDescription(

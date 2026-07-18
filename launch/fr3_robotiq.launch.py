@@ -59,6 +59,7 @@ def generate_launch_description():
         DeclareLaunchArgument('rpy_robotiq', default_value='0 0 0'),
         DeclareLaunchArgument('use_fake_hardware', default_value='false'),
         DeclareLaunchArgument('mock_sensor_commands', default_value='false'),
+        DeclareLaunchArgument('launch_robotiq_server', default_value='true'),
         DeclareLaunchArgument('com_port', default_value='/dev/ttyUSB0'),
         DeclareLaunchArgument('joint_state_rate', default_value='30'),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller'),
@@ -67,14 +68,6 @@ def generate_launch_description():
         DeclareLaunchArgument('init_k_ori', default_value='10.0'),
         DeclareLaunchArgument('ee_frame', default_value=''),
         DeclareLaunchArgument('base_frame', default_value='base'),
-        DeclareLaunchArgument('tcp_enabled', default_value='true'),
-        DeclareLaunchArgument('tcp_x', default_value='0.0'),
-        DeclareLaunchArgument('tcp_y', default_value='0.0'),
-        DeclareLaunchArgument('tcp_z', default_value='0.195'),
-        DeclareLaunchArgument('tcp_roll', default_value='0.0'),
-        DeclareLaunchArgument('tcp_pitch', default_value='0.0'),
-        DeclareLaunchArgument('tcp_yaw', default_value='0.0'),
-        DeclareLaunchArgument('end_effector_profile_node', default_value=''),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
@@ -88,8 +81,6 @@ def generate_launch_description():
         DeclareLaunchArgument('diagnostic_log_filter_tag', default_value='0'),
         DeclareLaunchArgument('shutdown_on_done', default_value='false'),
         DeclareLaunchArgument('publish_world_to_base', default_value='true'),
-        DeclareLaunchArgument('load_end_effector_profile', default_value='false'),
-        DeclareLaunchArgument('end_effector_profile', default_value=''),
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('rviz_config', default_value=PathJoinSubstitution([
             FindPackageShare('franka_description'),
@@ -122,14 +113,6 @@ def generate_launch_description():
             'init_k_ori': LaunchConfiguration('init_k_ori'),
             'ee_frame': LaunchConfiguration('ee_frame'),
             'base_frame': LaunchConfiguration('base_frame'),
-            'tcp_enabled': LaunchConfiguration('tcp_enabled'),
-            'tcp_x': LaunchConfiguration('tcp_x'),
-            'tcp_y': LaunchConfiguration('tcp_y'),
-            'tcp_z': LaunchConfiguration('tcp_z'),
-            'tcp_roll': LaunchConfiguration('tcp_roll'),
-            'tcp_pitch': LaunchConfiguration('tcp_pitch'),
-            'tcp_yaw': LaunchConfiguration('tcp_yaw'),
-            'end_effector_profile_node': LaunchConfiguration('end_effector_profile_node'),
             'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
             'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
@@ -144,8 +127,6 @@ def generate_launch_description():
             'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
             'use_rviz': 'false',
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
-            'load_end_effector_profile': LaunchConfiguration('load_end_effector_profile'),
-            'end_effector_profile': LaunchConfiguration('end_effector_profile'),
         }.items(),
     )
 
@@ -162,6 +143,7 @@ def generate_launch_description():
             'launch_rviz': 'false',
             'com_port': LaunchConfiguration('com_port'),
         }.items(),
+        condition=IfCondition(LaunchConfiguration('launch_robotiq_server')),
     )
 
     rviz = Node(
