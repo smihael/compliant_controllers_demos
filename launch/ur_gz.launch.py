@@ -144,6 +144,7 @@ def launch_setup(context, *args, **kwargs):
     init_k_ori = LaunchConfiguration("init_k_ori")
     gravity_compensation_enabled = LaunchConfiguration("gravity_compensation_enabled")
     ee_load_compensation_enabled = LaunchConfiguration("ee_load_compensation_enabled")
+    dithering_enabled = LaunchConfiguration("dithering_enabled")
     friction_compensation_enabled = LaunchConfiguration("friction_compensation_enabled")
     friction_model = LaunchConfiguration("friction_model")
     friction_scale = LaunchConfiguration("friction_scale")
@@ -273,6 +274,7 @@ def launch_setup(context, *args, **kwargs):
             "robot_description_param": "robot_description",
             "gravity_compensation_enabled": gravity_compensation_enabled,
             "ee_load_compensation_enabled": ee_load_compensation_enabled,
+            "dithering_enabled": dithering_enabled,
             "friction_compensation_enabled": friction_compensation_enabled,
             "friction_model": friction_model,
             "friction_scale": friction_scale,
@@ -414,6 +416,7 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("init_k_ori", default_value="10.0"))
     declared_arguments.append(DeclareLaunchArgument("gravity_compensation_enabled", default_value="true"))
     declared_arguments.append(DeclareLaunchArgument("ee_load_compensation_enabled", default_value="false"))
+    declared_arguments.append(DeclareLaunchArgument("dithering_enabled", default_value="false"))
     declared_arguments.append(DeclareLaunchArgument("friction_compensation_enabled", default_value="false"))
     declared_arguments.append(DeclareLaunchArgument("friction_model", default_value="auto"))
     declared_arguments.append(DeclareLaunchArgument("friction_scale", default_value="1.0"))

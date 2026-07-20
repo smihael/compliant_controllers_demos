@@ -19,6 +19,10 @@ def generate_launch_description():
         DeclareLaunchArgument('publish_world_to_base', default_value='true'),
         DeclareLaunchArgument('diagnostic_log_file', default_value='/tmp/fr3_friction_compensation_diagnostics.csv'),
         DeclareLaunchArgument('diagnostic_log_duration', default_value='60.0'),
+        DeclareLaunchArgument('friction_compensation_enabled', default_value='true'),
+        DeclareLaunchArgument('friction_model', default_value='de_luca'),
+        DeclareLaunchArgument('friction_scale', default_value='1.0'),
+        DeclareLaunchArgument('dithering_enabled', default_value='false'),
     ]
 
     include_shared = IncludeLaunchDescription(
@@ -44,9 +48,10 @@ def generate_launch_description():
             'init_k_ori': '0.0',
             'gravity_compensation_enabled': 'false',
             'ee_load_compensation_enabled': 'false',
-            'friction_compensation_enabled': 'true',
-            'friction_model': 'fcijs',
-            'friction_scale': '1.0',
+            'dithering_enabled': LaunchConfiguration('dithering_enabled'),
+            'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
+            'friction_model': LaunchConfiguration('friction_model'),
+            'friction_scale': LaunchConfiguration('friction_scale'),
             'friction_use_gating': 'true',
             'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
             'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),

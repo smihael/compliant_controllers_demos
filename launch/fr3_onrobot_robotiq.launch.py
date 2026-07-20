@@ -99,6 +99,7 @@ def controller_include(context):
             'robot_description_param': 'robot_description',
             'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
             'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
+            'dithering_enabled': LaunchConfiguration('dithering_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
             'friction_model': LaunchConfiguration('friction_model'),
             'friction_scale': LaunchConfiguration('friction_scale'),
@@ -205,11 +206,19 @@ def generate_launch_description():
         DeclareLaunchArgument('xyz_onrobot', default_value='0 0 0'),
         DeclareLaunchArgument('rpy_onrobot', default_value='0 0 -1.5707963267948966'),
         DeclareLaunchArgument('onrobot_ip_address', default_value='192.168.1.4'),
-        DeclareLaunchArgument('onrobot_sensor_id', default_value='onrobot_ft'),
-        DeclareLaunchArgument('onrobot_topic_name', default_value='wrench'),
+        # The OnRobot driver publishes sensor_id as WrenchStamped.header.frame_id.
+        # Match the sensor link created by the default ft_prefix (onrobot_).
+        DeclareLaunchArgument('onrobot_sensor_id', default_value='onrobot_fts_link'),
+        DeclareLaunchArgument('onrobot_topic_name', default_value='/wrench'),
+        DeclareLaunchArgument('onrobot_raw_topic_name', default_value='/wrench_raw'),
+        DeclareLaunchArgument('wrench_filter_sample_rate', default_value='500.0'),
+        DeclareLaunchArgument('wrench_filter_frequency', default_value='50.0'),
+        DeclareLaunchArgument('wrench_filter_quality_factor', default_value='5.0'),
         DeclareLaunchArgument('onrobot_port', default_value='49152'),
         DeclareLaunchArgument('onrobot_samples_per_request', default_value='10'),
-        DeclareLaunchArgument('onrobot_speed', default_value='10'),
+        # The DAQ rate is 1000 / speed. Use 500 Hz so the 50 Hz notch is
+        # comfortably below Nyquist and matches wrench_filter_sample_rate.
+        DeclareLaunchArgument('onrobot_speed', default_value='2'),
         DeclareLaunchArgument('onrobot_filter', default_value='4'),
         DeclareLaunchArgument('onrobot_bias_on_start', default_value='false'),
         DeclareLaunchArgument('onrobot_sampling_rate', default_value='500'),
@@ -232,6 +241,7 @@ def generate_launch_description():
         DeclareLaunchArgument('base_frame', default_value='base'),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
+        DeclareLaunchArgument('dithering_enabled', default_value='false'),
         DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
         DeclareLaunchArgument('friction_model', default_value='auto'),
         DeclareLaunchArgument('friction_scale', default_value='1.0'),
@@ -309,13 +319,31 @@ def generate_launch_description():
         launch_arguments={
             'ip_address': LaunchConfiguration('onrobot_ip_address'),
             'sensor_id': LaunchConfiguration('onrobot_sensor_id'),
-            'topic_name': LaunchConfiguration('onrobot_topic_name'),
+            'topic_name': LaunchConfiguration('onrobot_raw_topic_name'),
             'port': LaunchConfiguration('onrobot_port'),
             'samples_per_request': LaunchConfiguration('onrobot_samples_per_request'),
             'speed': LaunchConfiguration('onrobot_speed'),
             'filter': LaunchConfiguration('onrobot_filter'),
             'bias_on_start': LaunchConfiguration('onrobot_bias_on_start'),
         }.items(),
+    )
+
+    wrench_filter = Node(
+        package='compliant_controllers_demos',
+        executable='wrench_notch_filter.py',
+        name='wrench_notch_filter',
+        namespace=LaunchConfiguration('namespace'),
+        parameters=[{
+            'input_topic': LaunchConfiguration('onrobot_raw_topic_name'),
+            'output_topic': LaunchConfiguration('onrobot_topic_name'),
+            'sample_rate': ParameterValue(
+                LaunchConfiguration('wrench_filter_sample_rate'), value_type=float),
+            'frequency': ParameterValue(
+                LaunchConfiguration('wrench_filter_frequency'), value_type=float),
+            'quality_factor': ParameterValue(
+                LaunchConfiguration('wrench_filter_quality_factor'), value_type=float),
+        }],
+        output='screen',
     )
 
     rviz = Node(
@@ -339,4 +367,5 @@ def generate_launch_description():
         include_controller,
         include_robotiq,
         include_onrobot,
+        wrench_filter,
     ])

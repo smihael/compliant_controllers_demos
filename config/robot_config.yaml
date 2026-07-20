@@ -3,10 +3,11 @@ ROBOT_1:
 
   cartesian_impedance_controller:
     ros__parameters:
+      dithering_enabled: false
       friction_compensation_enabled: true
       friction_compensation:
-        model: hysteresis
-        scale: 0.0
+        model: de_luca
+        scale: 1.0
         phi1: [-1.815001380, -5.000000000, -1.193582344, -5.000000000, -1.096575841, -1.297481993, -0.595999358]
         phi2: [30.000000000, 30.000000000, 22.579578200, 30.000000000, 30.000000000, 30.000000000, 22.099240539]
         phi3: [-0.002642619, -0.115656453, 0.000297366, 0.096129698, 0.002909211, 0.134123947, 0.002213736]

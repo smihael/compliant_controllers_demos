@@ -28,6 +28,7 @@ def generate_launch_description():
         DeclareLaunchArgument('diagnostic_log_file', default_value='/tmp/fr3_friction_estimation_diagnostics.csv'),
         DeclareLaunchArgument('diagnostic_log_duration', default_value='120.0'),
         DeclareLaunchArgument('shutdown_on_done', default_value='true'),
+        DeclareLaunchArgument('dithering_enabled', default_value='false'),
     ]
 
     include_shared = IncludeLaunchDescription(
@@ -53,6 +54,7 @@ def generate_launch_description():
             'init_k_ori': '0.0',
             'gravity_compensation_enabled': 'false',
             'ee_load_compensation_enabled': 'false',
+            'dithering_enabled': LaunchConfiguration('dithering_enabled'),
             'friction_compensation_enabled': 'false',
             'friction_model': 'auto',
             'friction_scale': '0.0',

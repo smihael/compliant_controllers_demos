@@ -17,6 +17,7 @@ install(DIRECTORY urdf/
 
 install(PROGRAMS
   scripts/spacemouse_to_cartesian_command.py
+  scripts/wrench_notch_filter.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

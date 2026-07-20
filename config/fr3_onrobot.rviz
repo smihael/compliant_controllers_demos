@@ -5,9 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /RobotModel1
-        - /RobotModel1/Status1
         - /TF1
         - /TF1/Frames1
+        - /Wrench1
       Splitter Ratio: 0.5
     Tree Height: 1067
 Visualization Manager:
@@ -41,7 +41,7 @@ Visualization Manager:
         Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /robot_description
+        Value: /fr3/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -142,6 +142,14 @@ Visualization Manager:
           Show Trail: false
           Value: true
         fr3_link8:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        franka_desk_ee:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        franka_desk_ee_tcp:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -255,7 +263,11 @@ Visualization Manager:
         fr3_link7:
           Value: false
         fr3_link8:
+          Value: true
+        franka_desk_ee:
           Value: false
+        franka_desk_ee_tcp:
+          Value: true
         onrobot_fts_link:
           Value: false
         onrobot_tool_mount_link:
@@ -287,55 +299,78 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          fr3_link0:
-            fr3_link0_accelerometer_bottom:
-              {}
-            fr3_link0_accelerometer_top:
-              {}
-            fr3_link1:
-              fr3_link1_accelerometer_bottom:
+          base:
+            fr3_link0:
+              fr3_link0_accelerometer_bottom:
                 {}
-              fr3_link1_accelerometer_top:
+              fr3_link0_accelerometer_top:
                 {}
-              fr3_link2:
-                fr3_link2_accelerometer_bottom:
+              fr3_link1:
+                fr3_link1_accelerometer_bottom:
                   {}
-                fr3_link2_accelerometer_top:
+                fr3_link1_accelerometer_top:
                   {}
-                fr3_link3:
-                  fr3_link3_accelerometer_bottom:
+                fr3_link2:
+                  fr3_link2_accelerometer_bottom:
                     {}
-                  fr3_link3_accelerometer_top:
+                  fr3_link2_accelerometer_top:
                     {}
-                  fr3_link4:
-                    fr3_link4_accelerometer_bottom:
+                  fr3_link3:
+                    fr3_link3_accelerometer_bottom:
                       {}
-                    fr3_link4_accelerometer_top:
+                    fr3_link3_accelerometer_top:
                       {}
-                    fr3_link5:
-                      fr3_link5_accelerometer_bottom:
+                    fr3_link4:
+                      fr3_link4_accelerometer_bottom:
                         {}
-                      fr3_link5_accelerometer_top:
+                      fr3_link4_accelerometer_top:
                         {}
-                      fr3_link6:
-                        fr3_link7:
-                          fr3_link8:
-                            onrobot_fts_link:
-                              onrobot_tool_mount_link:
-                                robotiq_85_base_link:
-                                  robotiq_85_left_inner_knuckle_link:
-                                    {}
-                                  robotiq_85_left_knuckle_link:
-                                    robotiq_85_left_finger_link:
-                                      robotiq_85_left_finger_tip_link:
-                                        {}
-                                  robotiq_85_right_inner_knuckle_link:
-                                    {}
-                                  robotiq_85_right_knuckle_link:
-                                    robotiq_85_right_finger_link:
-                                      robotiq_85_right_finger_tip_link:
-                                        {}
+                      fr3_link5:
+                        fr3_link5_accelerometer_bottom:
+                          {}
+                        fr3_link5_accelerometer_top:
+                          {}
+                        fr3_link6:
+                          fr3_link7:
+                            fr3_link8:
+                              franka_desk_ee:
+                                franka_desk_ee_tcp:
+                                  {}
+                              onrobot_fts_link:
+                                onrobot_tool_mount_link:
+                                  robotiq_85_base_link:
+                                    robotiq_85_left_inner_knuckle_link:
+                                      {}
+                                    robotiq_85_left_knuckle_link:
+                                      robotiq_85_left_finger_link:
+                                        robotiq_85_left_finger_tip_link:
+                                          {}
+                                    robotiq_85_right_inner_knuckle_link:
+                                      {}
+                                    robotiq_85_right_knuckle_link:
+                                      robotiq_85_right_finger_link:
+                                        robotiq_85_right_finger_tip_link:
+                                          {}
       Update Interval: 0
+      Value: true
+    - Accept NaN Values: false
+      Alpha: 0.5
+      Arrow Width: 0.10000000149011612
+      Class: rviz_default_plugins/Wrench
+      Enabled: true
+      Force Arrow Scale: 1
+      Force Color: 204; 51; 51
+      History Length: 1
+      Name: Wrench
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /wrench
+      Torque Arrow Scale: 1
+      Torque Color: 204; 204; 51
       Value: true
   Enabled: true
   Global Options:
@@ -356,7 +391,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.864429235458374
+      Distance: 2.5878727436065674
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -371,10 +406,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.2399997115135193
+      Pitch: -0.09500022232532501
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.49501001834869385
+      Yaw: 1.4100100994110107
     Saved: ~
 Window Geometry:
   Displays:
