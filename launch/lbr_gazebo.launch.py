@@ -197,18 +197,14 @@ def generate_launch_description() -> LaunchDescription:
         )
     )
     ld.add_action(DeclareLaunchArgument("impl_library", default_value="libcartesian_impedance_impl.so"))
-    ld.add_action(DeclareLaunchArgument("init_k_pos", default_value="200.0"))
-    ld.add_action(DeclareLaunchArgument("init_k_ori", default_value="10.0"))
     ld.add_action(DeclareLaunchArgument("gravity_compensation_enabled", default_value="true"))
-    ld.add_action(DeclareLaunchArgument("ee_load_compensation_enabled", default_value="false"))
     ld.add_action(DeclareLaunchArgument("dithering_enabled", default_value="false"))
     ld.add_action(DeclareLaunchArgument("friction_compensation_enabled", default_value="false"))
+    ld.add_action(DeclareLaunchArgument("max_step_guard_enabled", default_value=""))
     ld.add_action(DeclareLaunchArgument("friction_model", default_value="auto"))
     ld.add_action(DeclareLaunchArgument("friction_scale", default_value="1.0"))
     ld.add_action(DeclareLaunchArgument("friction_use_gating", default_value="true"))
-    ld.add_action(DeclareLaunchArgument("diagnostic_log_file", default_value=""))
-    ld.add_action(DeclareLaunchArgument("diagnostic_log_duration", default_value="0.0"))
-    ld.add_action(DeclareLaunchArgument("diagnostic_log_filter_tag", default_value="0"))
+    ld.add_action(DeclareLaunchArgument("log_file", default_value=""))
     ld.add_action(DeclareLaunchArgument("publish_world_to_base", default_value="true"))
     # Optional: Launch log level control
     ld.add_action(
@@ -282,23 +278,19 @@ def generate_launch_description() -> LaunchDescription:
             "controller_name": LaunchConfiguration("ctrl"),
             "controller_manager": ["/", robot_name, "/controller_manager"],
             "impl_library": LaunchConfiguration("impl_library"),
-            "init_k_pos": LaunchConfiguration("init_k_pos"),
-            "init_k_ori": LaunchConfiguration("init_k_ori"),
             "joints": "lbr_A1,lbr_A2,lbr_A3,lbr_A4,lbr_A5,lbr_A6,lbr_A7",
             "ee_frame": "lbr_link_ee",
             "base_frame": "lbr_link_0",
             "robot_description_node": ["/", robot_name, "/robot_state_publisher"],
             "robot_description_param": "robot_description",
             "gravity_compensation_enabled": LaunchConfiguration("gravity_compensation_enabled"),
-            "ee_load_compensation_enabled": LaunchConfiguration("ee_load_compensation_enabled"),
             "dithering_enabled": LaunchConfiguration("dithering_enabled"),
             "friction_compensation_enabled": LaunchConfiguration("friction_compensation_enabled"),
+            "max_step_guard_enabled": LaunchConfiguration("max_step_guard_enabled"),
             "friction_model": LaunchConfiguration("friction_model"),
             "friction_scale": LaunchConfiguration("friction_scale"),
             "friction_use_gating": LaunchConfiguration("friction_use_gating"),
-            "diagnostic_log_file": LaunchConfiguration("diagnostic_log_file"),
-            "diagnostic_log_duration": LaunchConfiguration("diagnostic_log_duration"),
-            "diagnostic_log_filter_tag": LaunchConfiguration("diagnostic_log_filter_tag"),
+            "log_file": LaunchConfiguration("log_file"),
             "publish_world_to_base": LaunchConfiguration("publish_world_to_base"),
         }.items(),
     )

@@ -19,12 +19,12 @@
     arm_id: fr3
     init_k_pos: 200.0
     init_k_ori: 10.0
+    max_step_guard_enabled: true
     ee_frame: fr3_link8
     robot_description_node: robot_state_publisher
     robot_description_param: robot_description
     end_effector.robot_state_topic: /fr3/franka_robot_state_broadcaster/robot_state
     gravity_compensation_enabled: true
-    ee_load_compensation_enabled: false
     joint_limit_repulsion:
       enabled: true
       stiffness: [50.0]

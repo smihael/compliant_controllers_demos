@@ -140,18 +140,14 @@ def launch_setup(context, *args, **kwargs):
     gazebo_gui = LaunchConfiguration("gazebo_gui")
     world_file = LaunchConfiguration("world_file")
     impl_library = LaunchConfiguration("impl_library")
-    init_k_pos = LaunchConfiguration("init_k_pos")
-    init_k_ori = LaunchConfiguration("init_k_ori")
     gravity_compensation_enabled = LaunchConfiguration("gravity_compensation_enabled")
-    ee_load_compensation_enabled = LaunchConfiguration("ee_load_compensation_enabled")
     dithering_enabled = LaunchConfiguration("dithering_enabled")
     friction_compensation_enabled = LaunchConfiguration("friction_compensation_enabled")
+    max_step_guard_enabled = LaunchConfiguration("max_step_guard_enabled")
     friction_model = LaunchConfiguration("friction_model")
     friction_scale = LaunchConfiguration("friction_scale")
     friction_use_gating = LaunchConfiguration("friction_use_gating")
-    diagnostic_log_file = LaunchConfiguration("diagnostic_log_file")
-    diagnostic_log_duration = LaunchConfiguration("diagnostic_log_duration")
-    diagnostic_log_filter_tag = LaunchConfiguration("diagnostic_log_filter_tag")
+    log_file = LaunchConfiguration("log_file")
     publish_world_to_base = LaunchConfiguration("publish_world_to_base")
     
     # Get controllers config from compliant_controllers
@@ -265,23 +261,19 @@ def launch_setup(context, *args, **kwargs):
             "start_controller": start_joint_controller,
             "controller_manager": "/controller_manager",
             "impl_library": impl_library,
-            "init_k_pos": init_k_pos,
-            "init_k_ori": init_k_ori,
             "joints": ur_joints,
             "ee_frame": f"{prefix_str}tool0",
             "base_frame": f"{prefix_str}base_link",
             "robot_description_node": "/robot_state_publisher",
             "robot_description_param": "robot_description",
             "gravity_compensation_enabled": gravity_compensation_enabled,
-            "ee_load_compensation_enabled": ee_load_compensation_enabled,
             "dithering_enabled": dithering_enabled,
             "friction_compensation_enabled": friction_compensation_enabled,
+            "max_step_guard_enabled": max_step_guard_enabled,
             "friction_model": friction_model,
             "friction_scale": friction_scale,
             "friction_use_gating": friction_use_gating,
-            "diagnostic_log_file": diagnostic_log_file,
-            "diagnostic_log_duration": diagnostic_log_duration,
-            "diagnostic_log_filter_tag": diagnostic_log_filter_tag,
+            "log_file": log_file,
             "publish_world_to_base": publish_world_to_base,
         }.items(),
     )
@@ -412,18 +404,14 @@ def generate_launch_description():
         )
     )
     declared_arguments.append(DeclareLaunchArgument("impl_library", default_value="libcartesian_impedance_impl.so"))
-    declared_arguments.append(DeclareLaunchArgument("init_k_pos", default_value="150.0"))
-    declared_arguments.append(DeclareLaunchArgument("init_k_ori", default_value="10.0"))
     declared_arguments.append(DeclareLaunchArgument("gravity_compensation_enabled", default_value="true"))
-    declared_arguments.append(DeclareLaunchArgument("ee_load_compensation_enabled", default_value="false"))
     declared_arguments.append(DeclareLaunchArgument("dithering_enabled", default_value="false"))
     declared_arguments.append(DeclareLaunchArgument("friction_compensation_enabled", default_value="false"))
+    declared_arguments.append(DeclareLaunchArgument("max_step_guard_enabled", default_value=""))
     declared_arguments.append(DeclareLaunchArgument("friction_model", default_value="auto"))
     declared_arguments.append(DeclareLaunchArgument("friction_scale", default_value="1.0"))
     declared_arguments.append(DeclareLaunchArgument("friction_use_gating", default_value="true"))
-    declared_arguments.append(DeclareLaunchArgument("diagnostic_log_file", default_value=""))
-    declared_arguments.append(DeclareLaunchArgument("diagnostic_log_duration", default_value="0.0"))
-    declared_arguments.append(DeclareLaunchArgument("diagnostic_log_filter_tag", default_value="0"))
+    declared_arguments.append(DeclareLaunchArgument("log_file", default_value=""))
     declared_arguments.append(DeclareLaunchArgument("publish_world_to_base", default_value="true"))
     declared_arguments.append(
         DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?")

@@ -70,9 +70,15 @@ def controller_include(context):
 
     controller_name = LaunchConfiguration('controller_name').perform(context)
     impl_library = LaunchConfiguration('impl_library').perform(context)
+    robot_profile_file = LaunchConfiguration('robot_profile_file').perform(context) or os.path.join(
+        get_package_share_directory('compliant_controllers_demos'),
+        'config', 'robot_profiles',
+        f'{LaunchConfiguration("robot_profile").perform(context)}.yaml')
     if is_joint_controller(controller_name):
         launch_file = 'joint_wrapper.launch.py'
         launch_arguments = {
+            'robot_profile_file': robot_profile_file,
+            'friction_compensation_profile': LaunchConfiguration('friction_compensation_profile'),
             'namespace': LaunchConfiguration('namespace'),
             'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
@@ -80,35 +86,25 @@ def controller_include(context):
             'robot_description_node': 'robot_state_publisher',
             'robot_description_param': 'robot_description',
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
-            'friction_model': LaunchConfiguration('friction_model'),
-            'friction_scale': LaunchConfiguration('friction_scale'),
-            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
         }
     else:
         launch_file = 'cartesian_wrapper.launch.py'
         launch_arguments = {
             'robot_profile': LaunchConfiguration('robot_profile'),
+            'robot_profile_file': robot_profile_file,
+            'friction_compensation_profile': LaunchConfiguration('friction_compensation_profile'),
             'namespace': LaunchConfiguration('namespace'),
             'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
-            'init_k_pos': LaunchConfiguration('init_k_pos'),
-            'init_k_ori': LaunchConfiguration('init_k_ori'),
             'ee_frame': LaunchConfiguration('ee_frame'),
             'base_frame': LaunchConfiguration('base_frame'),
             'robot_description_node': 'robot_state_publisher',
             'robot_description_param': 'robot_description',
-            'gravity_compensation_enabled': LaunchConfiguration('gravity_compensation_enabled'),
-            'ee_load_compensation_enabled': LaunchConfiguration('ee_load_compensation_enabled'),
             'dithering_enabled': LaunchConfiguration('dithering_enabled'),
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
-            'friction_model': LaunchConfiguration('friction_model'),
-            'friction_scale': LaunchConfiguration('friction_scale'),
-            'friction_use_gating': LaunchConfiguration('friction_use_gating'),
+            'max_step_guard_enabled': LaunchConfiguration('max_step_guard_enabled'),
             'plugin_params_file': LaunchConfiguration('plugin_params_file'),
-            'csv_file': LaunchConfiguration('csv_file'),
-            'diagnostic_log_file': LaunchConfiguration('diagnostic_log_file'),
-            'diagnostic_log_duration': LaunchConfiguration('diagnostic_log_duration'),
-            'diagnostic_log_filter_tag': LaunchConfiguration('diagnostic_log_filter_tag'),
+            'log_file': LaunchConfiguration('log_file'),
             'shutdown_on_done': LaunchConfiguration('shutdown_on_done'),
             'publish_world_to_base': LaunchConfiguration('publish_world_to_base'),
         }
@@ -131,12 +127,14 @@ def fr3_control_nodes(context, robot_model):
     namespace = LaunchConfiguration('namespace').perform(context).strip('/')
     description_topic = f'/{namespace}/robot_description' if namespace else '/robot_description'
     broadcaster_key = f'/{namespace}/franka_robot_state_broadcaster' if namespace else '/franka_robot_state_broadcaster'
-    broadcaster_params = os.path.join(
-        tempfile.gettempdir(),
-        f'fr3_onrobot_robotiq_state_broadcaster_{namespace or "root"}.yaml',
-    )
+    runtime_dir = os.environ.get(
+        'XDG_RUNTIME_DIR', os.path.join(os.path.expanduser('~'), '.cache', 'compliant_controllers'))
+    os.makedirs(runtime_dir, mode=0o700, exist_ok=True)
     description = Command(robot_description_command(robot_model)).perform(context)
-    with open(broadcaster_params, 'w', encoding='utf-8') as stream:
+    with tempfile.NamedTemporaryFile(
+            mode='w', encoding='utf-8', prefix='franka_state_broadcaster_',
+            suffix='.yaml', dir=runtime_dir, delete=False) as stream:
+        broadcaster_params = stream.name
         yaml.safe_dump({broadcaster_key: {'ros__parameters': {
             'robot_description': description,
         }}}, stream, sort_keys=False)
@@ -161,7 +159,7 @@ def fr3_control_nodes(context, robot_model):
             name='joint_state_publisher', namespace=LaunchConfiguration('namespace'),
             parameters=[{'source_list': ['franka/joint_states', 'franka_gripper/joint_states'],
                          'rate': ParameterValue(LaunchConfiguration('joint_state_rate'), value_type=int),
-                         'use_robot_description': False}],
+                         'robot_description': description}],
             output='screen',
         ),
         Node(
@@ -194,6 +192,10 @@ def generate_launch_description():
 
     declared_args = [
         DeclareLaunchArgument('robot_profile', default_value=robot_profile),
+        DeclareLaunchArgument('robot_profile_file', default_value=''),
+        DeclareLaunchArgument(
+            'friction_compensation_profile',
+            default_value='friction_compensation_sigmoid'),
         DeclareLaunchArgument('robot_type', default_value='fr3'),
         DeclareLaunchArgument('arm_id', default_value=str(robot_cfg.get('robot_name', 'fr3'))),
         DeclareLaunchArgument('arm_prefix', default_value=''),
@@ -206,8 +208,6 @@ def generate_launch_description():
         DeclareLaunchArgument('xyz_onrobot', default_value='0 0 0'),
         DeclareLaunchArgument('rpy_onrobot', default_value='0 0 -1.5707963267948966'),
         DeclareLaunchArgument('onrobot_ip_address', default_value='192.168.1.4'),
-        # The OnRobot driver publishes sensor_id as WrenchStamped.header.frame_id.
-        # Match the sensor link created by the default ft_prefix (onrobot_).
         DeclareLaunchArgument('onrobot_sensor_id', default_value='onrobot_fts_link'),
         DeclareLaunchArgument('onrobot_topic_name', default_value='/wrench'),
         DeclareLaunchArgument('onrobot_raw_topic_name', default_value='/wrench_raw'),
@@ -216,8 +216,6 @@ def generate_launch_description():
         DeclareLaunchArgument('wrench_filter_quality_factor', default_value='5.0'),
         DeclareLaunchArgument('onrobot_port', default_value='49152'),
         DeclareLaunchArgument('onrobot_samples_per_request', default_value='10'),
-        # The DAQ rate is 1000 / speed. Use 500 Hz so the 50 Hz notch is
-        # comfortably below Nyquist and matches wrench_filter_sample_rate.
         DeclareLaunchArgument('onrobot_speed', default_value='2'),
         DeclareLaunchArgument('onrobot_filter', default_value='4'),
         DeclareLaunchArgument('onrobot_bias_on_start', default_value='false'),
@@ -234,26 +232,17 @@ def generate_launch_description():
         DeclareLaunchArgument('com_port', default_value='/dev/ttyUSB0'),
         DeclareLaunchArgument('joint_state_rate', default_value='30'),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller'),
-        DeclareLaunchArgument('impl_library', default_value='libcartesian_impedance_impl.so'),
-        DeclareLaunchArgument('init_k_pos', default_value='200.0'),
-        DeclareLaunchArgument('init_k_ori', default_value='10.0'),
+        DeclareLaunchArgument('impl_library', default_value=''),
         DeclareLaunchArgument('ee_frame', default_value='franka_desk_ee_tcp'),
         DeclareLaunchArgument('base_frame', default_value='base'),
-        DeclareLaunchArgument('gravity_compensation_enabled', default_value='false'),
-        DeclareLaunchArgument('ee_load_compensation_enabled', default_value='false'),
-        DeclareLaunchArgument('dithering_enabled', default_value='false'),
-        DeclareLaunchArgument('friction_compensation_enabled', default_value='false'),
-        DeclareLaunchArgument('friction_model', default_value='auto'),
-        DeclareLaunchArgument('friction_scale', default_value='1.0'),
-        DeclareLaunchArgument('friction_use_gating', default_value='true'),
+        DeclareLaunchArgument('dithering_enabled', default_value=''),
+        DeclareLaunchArgument('friction_compensation_enabled', default_value=''),
+        DeclareLaunchArgument('max_step_guard_enabled', default_value=''),
         DeclareLaunchArgument('plugin_params_file', default_value=''),
-        DeclareLaunchArgument('csv_file', default_value=''),
-        DeclareLaunchArgument('diagnostic_log_file', default_value=''),
-        DeclareLaunchArgument('diagnostic_log_duration', default_value='0.0'),
-        DeclareLaunchArgument('diagnostic_log_filter_tag', default_value='0'),
+        DeclareLaunchArgument('log_file', default_value=''),
         DeclareLaunchArgument('shutdown_on_done', default_value='false'),
         DeclareLaunchArgument('publish_world_to_base', default_value='true'),
-        DeclareLaunchArgument('use_rviz', default_value='true'),
+        DeclareLaunchArgument('use_rviz', default_value='false'),
         DeclareLaunchArgument('rviz_config', default_value=PathJoinSubstitution([
             FindPackageShare('compliant_controllers_demos'),
             'config',

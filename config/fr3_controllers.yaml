@@ -50,11 +50,11 @@
       arm_id: fr3
       init_k_pos: 200.0
       init_k_ori: 10.0
+      max_step_guard_enabled: true
       ee_frame: fr3_link8
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
       end_effector.robot_state_topic: /fr3/franka_robot_state_broadcaster/robot_state
-      ee_load_compensation_enabled: false
       joint_limit_repulsion:
         enabled: true
         stiffness: [50.0]
@@ -77,6 +77,11 @@
       ee_frame: fr3_link8
       robot_description_node: robot_state_publisher
       robot_description_param: robot_description
+      joint_impedance:
+        initial_stiffness: [600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0]
+        initial_damping: [30.0, 30.0, 30.0, 30.0, 10.0, 10.0, 5.0]
+        filter_alpha: 0.99
+        max_tau_delta: 1.0
       joint_limit_repulsion:
         enabled: true
         stiffness: [50.0]
@@ -91,6 +96,20 @@
         - fr3_joint5
         - fr3_joint6
         - fr3_joint7
+
+/**:
+  friction_compensation_controller_v2:
+    ros__parameters:
+      init_k_pos: 0.0
+      init_k_ori: 0.0
+      max_step_guard_enabled: true
+
+/**:
+  friction_estimation_controller_v2:
+    ros__parameters:
+      init_k_pos: 0.0
+      init_k_ori: 0.0
+      max_step_guard_enabled: true
 
 /**:
   fr3_arm_controller:
