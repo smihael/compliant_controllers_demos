@@ -1,0 +1,13 @@
+repositories:
+  compliant_controllers:
+    type: git
+    url: https://github.com/smihael/compliant_controllers.git
+    version: humble
+  compliant_controllers_msgs:
+    type: git
+    url: https://github.com/smihael/compliant_controllers_msgs.git
+    version: master
+  ros2_control_robot_dynamics:
+    type: git
+    url: https://github.com/smihael/ros2_control_robot_dynamics.git
+    version: master

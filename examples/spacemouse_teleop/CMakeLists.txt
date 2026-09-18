@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 3.8)
+project(spacemouse_teleop)
+
+find_package(ament_cmake REQUIRED)
+install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(PROGRAMS scripts/spacemouse_to_cartesian_command.py
+  DESTINATION lib/${PROJECT_NAME})
+ament_package()

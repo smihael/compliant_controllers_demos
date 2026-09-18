@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+fetch() {
+  git init -q "$3"
+  git -C "$3" remote add origin "$1"
+  git -C "$3" fetch --depth 1 origin "$2"
+  git -C "$3" checkout --detach FETCH_HEAD
+}
+mkdir -p src
+fetch https://github.com/PickNikRobotics/ros2_robotiq_gripper.git "$ROBOTIQ_VERSION" /tmp/robotiq
+for package in robotiq_description robotiq_driver robotiq_controllers; do
+  cp -a "/tmp/robotiq/$package" src/
+done
+rm -rf /tmp/robotiq
+fetch https://github.com/tylerjw/serial.git "$SERIAL_VERSION" src/serial
+source /controllers_ws/install/setup.bash
+apt-get update
+rosdep install --from-paths src --ignore-src --rosdistro "$ROS_DISTRO" -y
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+rm -rf /var/lib/apt/lists/*

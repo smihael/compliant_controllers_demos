@@ -1,0 +1,10 @@
+services:
+  ur-mujoco:
+    environment:
+      MUJOCO_HEADLESS: "false"
+      DISPLAY: "${DISPLAY}"
+      LIBGL_ALWAYS_SOFTWARE: "0"
+    devices:
+      - "${DRI_RENDER_DEVICE:-/dev/dri/renderD128}:/dev/dri/renderD128"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw

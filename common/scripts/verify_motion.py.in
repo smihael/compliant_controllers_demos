@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Send the demo's 5 mm X step and check the measured TF displacement."""
+import math
+import subprocess
+import time
+
+import rclpy
+from rclpy.node import Node
+from rclpy.parameter import Parameter
+from tf2_ros import Buffer, TransformException, TransformListener
+
+
+def main():
+    rclpy.init()
+    node = Node('verify_@DEMO_NODE_PREFIX@_@DEMO_SIMULATOR@_motion',
+                parameter_overrides=[Parameter('use_sim_time', value=True)]
+                if @DEMO_USE_SIM_TIME@ else [])
+    buffer = Buffer()
+    listener = TransformListener(buffer, node)
+
+    def position():
+        try:
+            transform = buffer.lookup_transform('@DEMO_BASE_FRAME@', '@DEMO_EE_FRAME@', rclpy.time.Time())
+            if @DEMO_CHECK_TF_AGE@:
+                stamp = rclpy.time.Time.from_msg(transform.header.stamp)
+                age = (node.get_clock().now() - stamp).nanoseconds / 1e9
+                if not 0.0 <= age <= 1.0:
+                    return None
+            p = transform.transform.translation
+            result = (p.x, p.y, p.z)
+            if all(math.isfinite(v) for v in result):
+                return result
+        except TransformException:
+            pass
+        return None
+
+    def sample_for(seconds):
+        deadline = time.monotonic() + seconds
+        while time.monotonic() < deadline:
+            rclpy.spin_once(node, timeout_sec=0.05)
+        result = position()
+        if result is None:
+            raise RuntimeError('No finite @DEMO_LABEL@ end-effector TF received')
+        return result
+
+    try:
+        start = sample_for(3.0)
+        settled = sample_for(2.0)
+        if math.dist(start, settled) > 0.002:
+            raise RuntimeError('Arm drifted more than 2 mm before the test command')
+        subprocess.run([
+            'ros2', 'run', 'compliant_controllers', 'test_cartesian_command.py',
+            '--ros-args', '-r', '__ns:=/', '-p', 'base_frame:=@DEMO_BASE_FRAME@',
+            '-p', 'ee_frame:=@DEMO_EE_FRAME@', '-p', 'dx:=0.005', '-p', 'dy:=0.0',
+            '-p', 'dz:=0.0', '-p', 'k_lin:=300.0', '-p', 'k_rot:=20.0',
+        ] + (['-p', 'use_sim_time:=true'] if @DEMO_USE_SIM_TIME@ else []),
+            check=True, timeout=30)
+        end = sample_for(10.0)
+        displacement = tuple(b - a for a, b in zip(settled, end))
+        error = math.dist(displacement, (0.005, 0.0, 0.0))
+        print(f'Measured displacement (m): {displacement}; error: {error:.6f}', flush=True)
+        if error > 0.002:
+            raise RuntimeError('Measured step differs from the 5 mm X command by more than 2 mm')
+        print('PASS: @DEMO_LABEL@ holds its pose and follows the Cartesian step.', flush=True)
+    finally:
+        del listener
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

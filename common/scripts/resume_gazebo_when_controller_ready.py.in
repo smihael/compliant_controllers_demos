@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Step paused Gazebo until ros2_control is active, then resume continuously."""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import time
+
+import rclpy
+from controller_manager_msgs.srv import ListControllers
+
+
+def _world_control(world: str, request: str) -> None:
+    result = subprocess.run(
+        [
+            "ign", "service", "-s", f"/world/{world}/control",
+            "--reqtype", "ignition.msgs.WorldControl",
+            "--reptype", "ignition.msgs.Boolean", "--timeout", "2000",
+            "--req", request,
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    if "data: true" not in result.stdout:
+        raise RuntimeError(f"Gazebo rejected world control: {result.stdout} {result.stderr}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--controller-manager", default="/controller_manager")
+    parser.add_argument("--controller", required=True)
+    parser.add_argument("--world", required=True)
+    parser.add_argument("--timeout", type=float, default=30.0)
+    args, _ = parser.parse_known_args()
+
+    rclpy.init()
+    node = rclpy.create_node("gazebo_startup_gate")
+    client = node.create_client(
+        ListControllers, f"{args.controller_manager.rstrip('/')}/list_controllers"
+    )
+    deadline = time.monotonic() + args.timeout
+    required = (args.controller, "joint_state_broadcaster")
+    try:
+        while time.monotonic() < deadline:
+            if not client.wait_for_service(timeout_sec=0.2):
+                continue
+            future = client.call_async(ListControllers.Request())
+            rclpy.spin_until_future_complete(node, future, timeout_sec=0.5)
+            response = future.result()
+            states = {}
+            if response is not None:
+                states = {item.name: item.state for item in response.controller}
+            if all(states.get(name) == "active" for name in required):
+                break
+            # Configuration and switching services may themselves be waiting
+            # for controller-manager update() and temporarily prevent a fresh
+            # list response. Step even when this particular query timed out.
+            # Keeping pause=true prevents continuous free fall.
+            _world_control(args.world, "pause: true multi_step: 1")
+            time.sleep(0.02)
+        else:
+            raise RuntimeError(
+                f"Controllers {required} did not become active within "
+                f"{args.timeout:.1f} seconds"
+            )
+
+        _world_control(args.world, "pause: false")
+        node.get_logger().info(
+            f"Controller '{args.controller}' and joint-state broadcaster are active; "
+            f"resumed Gazebo world '{args.world}'"
+        )
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

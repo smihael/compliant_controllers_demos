@@ -1,0 +1,34 @@
+/controller_manager:
+  ros__parameters:
+    update_rate: 1000
+    cartesian_impedance_controller:
+      type: compliant_controllers/GenericCartesianControllerWrapper
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+/cartesian_impedance_controller:
+  ros__parameters:
+    arm_id: ur5e
+    init_k_pos: 200.0
+    init_k_ori: 10.0
+    max_step_guard_enabled: true
+    ee_frame: tool0
+    robot_description_node: /robot_state_publisher
+    robot_description_param: robot_description
+    gravity_compensation_enabled: true
+    joint_limit_repulsion:
+      enabled: true
+      stiffness:
+      - 50.0
+      damping:
+      - 5.0
+      margin:
+      - 0.15
+    impl_library: libcartesian_impedance_impl.so
+    joints:
+    - shoulder_pan_joint
+    - shoulder_lift_joint
+    - elbow_joint
+    - wrist_1_joint
+    - wrist_2_joint
+    - wrist_3_joint
+    base_frame: base_link

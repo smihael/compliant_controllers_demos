@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Pause/reset before controller activation, then resume only on success."""
+import argparse
+import subprocess
+import time
+
+import rclpy
+from controller_manager_msgs.srv import ListHardwareComponents
+from mujoco_ros2_control_msgs.srv import ResetWorld, SetPause
+from rclpy.node import Node
+
+
+def call(node, srv_type, name, request):
+    client = node.create_client(srv_type, '/mujoco_ros2_control_node/' + name)
+    if not client.wait_for_service(timeout_sec=60.0):
+        raise RuntimeError(f'{name} service unavailable')
+    future = client.call_async(request)
+    rclpy.spin_until_future_complete(node, future, timeout_sec=15.0)
+    response = future.result()
+    if response is None or not response.success:
+        raise RuntimeError(f'{name} failed: {response}')
+    node.destroy_client(client)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--controller', default='@DEMO_CONTROLLER@')
+    args, ros_args = parser.parse_known_args()
+    rclpy.init(args=ros_args)
+    node = Node('start_@DEMO_NODE_PREFIX@_controllers')
+    try:
+        client = node.create_client(ListHardwareComponents,
+                                    '/controller_manager/list_hardware_components')
+        if not client.wait_for_service(timeout_sec=60.0):
+            raise RuntimeError('Controller manager unavailable')
+        deadline = time.monotonic() + 60.0
+        while time.monotonic() < deadline:
+            future = client.call_async(ListHardwareComponents.Request())
+            rclpy.spin_until_future_complete(node, future, timeout_sec=5.0)
+            result = future.result()
+            if result and any(h.name == '@DEMO_HARDWARE@' and h.state.label == 'active'
+                              for h in result.component):
+                break
+            time.sleep(0.1)
+        else:
+            raise RuntimeError('MuJoCo hardware did not activate')
+        node.destroy_client(client)
+        call(node, SetPause, 'set_pause', SetPause.Request(paused=True))
+        call(node, ResetWorld, 'reset_world', ResetWorld.Request())
+        for controller in ['joint_state_broadcaster', args.controller]:
+            subprocess.run(['ros2', 'run', 'controller_manager', 'spawner', controller,
+                            '--controller-manager', '/controller_manager',
+                            '--controller-manager-timeout', '60'], check=True, timeout=90)
+        call(node, SetPause, 'set_pause', SetPause.Request(paused=False))
+        node.get_logger().info('@DEMO_LABEL@ controllers active; MuJoCo resumed.')
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

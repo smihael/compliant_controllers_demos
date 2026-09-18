@@ -1,0 +1,63 @@
+x-ros-environment: &ros-environment
+  ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-1}"
+  FIXTURE_BASE_Z: "${FIXTURE_BASE_Z:-0.55}"
+
+services:
+  gazebo:
+    build:
+      context: ../..
+      dockerfile: examples/surface_following/docker/Dockerfile.gazebo
+      args:
+        SIM_BASE_IMAGE: "${SIM_BASE_IMAGE:-compliant-controllers:franka-gz-sim}"
+    image: compliant-controllers-demos:gazebo
+    container_name: compliant-demos-gazebo
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      <<: *ros-environment
+      SHOW_GAZEBO_GUI: "${SHOW_GAZEBO_GUI:-true}"
+      ENABLE_SURFACE_CAMERA: "${ENABLE_SURFACE_CAMERA:-false}"
+      SHOW_CAMERA_VIEWER: "${SHOW_CAMERA_VIEWER:-false}"
+      DISPLAY: "${DISPLAY:-:0}"
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - .:/opt/demo:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: [bash, /opt/demo/docker/start-gazebo.sh]
+    healthcheck:
+      test: [CMD, bash, /opt/demo/docker/check-gazebo.sh]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 15s
+
+  notebook:
+    build:
+      context: ../..
+      dockerfile: examples/surface_following/docker/Dockerfile.jupyter
+    image: compliant-controllers-demos:jupyter
+    container_name: compliant-demos-jupyter
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      <<: *ros-environment
+      JUPYTER_TOKEN: "${JUPYTER_TOKEN:-surface}"
+      JUPYTER_PORT: "${JUPYTER_PORT:-8889}"
+      PYTHONPATH: /opt/demo/scripts
+    volumes:
+      - .:/opt/demo:rw
+    depends_on:
+      gazebo:
+        condition: service_healthy
+    entrypoint: [bash, /opt/demo/docker/entrypoint.sh]
+    command: [bash, /opt/demo/docker/start-notebook.sh]
+    healthcheck:
+      test: [CMD, /opt/venv/bin/python, /opt/demo/docker/check-notebook.py]
+      interval: 10s
+      timeout: 8s
+      retries: 6
+      start_period: 15s

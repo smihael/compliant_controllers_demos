@@ -1,0 +1,42 @@
+services:
+  controllers:
+    environment:
+      CONTROLLER_DEBUG: "1"
+      CONTROLLER_NAME: cartesian_impedance_controller
+    command:
+      - bash
+      - -c
+      - |
+        exec ros2 launch franka_real fr3.launch.py \
+          robot_ip:="$${ROBOT_IP}" \
+          load_gripper:="$${LOAD_GRIPPER}" \
+          controller_name:=cartesian_impedance_controller
+  sender:
+    image: compliant-controllers:franka-real
+    pull_policy: never
+    user: "${USER_UID:-1000}:${USER_GID:-1000}"
+    working_dir: /controllers_ws
+    init: true
+    network_mode: host
+    ipc: host
+    restart: "no"
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-11}"
+      HOME: /tmp/franka-sender-home
+      ROS_LOG_DIR: /tmp/franka-sender-home/.ros/log
+      SENDER_DELAY: "${SENDER_DELAY:-5}"
+      SENDER_TIMEOUT: "${SENDER_TIMEOUT:-5s}"
+    depends_on:
+      controllers:
+        condition: service_started
+    command:
+      - bash
+      - -c
+      - |
+        echo "Waiting $${SENDER_DELAY}s before sending one +5 mm Cartesian command"
+        sleep "$${SENDER_DELAY}" &&
+        exec timeout "$${SENDER_TIMEOUT}" ros2 run compliant_controllers test_cartesian_command.py \
+          --ros-args -r __ns:=/fr3 \
+          -p base_frame:=fr3_link0 -p ee_frame:=fr3_link8 \
+          -p dx:=0.005 -p dy:=0.0 -p dz:=0.0 \
+          -p k_lin:=1000.0 -p k_rot:=20.0

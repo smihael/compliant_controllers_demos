@@ -1,0 +1,39 @@
+ARG ROS_BASE_IMAGE=compliant-controllers:humble-desktop-full
+FROM ${ROS_BASE_IMAGE}
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    ROS_DISTRO=humble \
+    PIP_ROOT_USER_ACTION=ignore \
+    PATH=/opt/venv/bin:${PATH} \
+    PYTHONPATH=/opt/demo/scripts
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        cmake \
+        python3-colcon-common-extensions \
+        python3-pip \
+        python3-venv \
+        ros-${ROS_DISTRO}-ament-cmake \
+        ros-${ROS_DISTRO}-controller-manager-msgs \
+        ros-${ROS_DISTRO}-control-msgs \
+        ros-${ROS_DISTRO}-franka-msgs \
+        ros-${ROS_DISTRO}-geometry-msgs \
+        ros-${ROS_DISTRO}-rosidl-default-generators \
+        ros-${ROS_DISTRO}-sensor-msgs \
+        ros-${ROS_DISTRO}-std-msgs \
+        ros-${ROS_DISTRO}-std-srvs \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY examples/surface_following/docker/requirements-surface.txt /tmp/requirements-surface.txt
+COPY examples/surface_following/docker/requirements-notebook.txt /tmp/requirements-notebook.txt
+RUN python3 -m venv --system-site-packages /opt/venv \
+    && /opt/venv/bin/python -m pip install --no-cache-dir --upgrade pip \
+    && /opt/venv/bin/python -m pip install --no-cache-dir \
+      -r /tmp/requirements-surface.txt -r /tmp/requirements-notebook.txt
+
+WORKDIR /opt/demo/notebooks
+EXPOSE 8889
+ENTRYPOINT ["bash", "/opt/demo/docker/entrypoint.sh"]
+CMD ["bash", "/opt/demo/docker/start-notebook.sh"]

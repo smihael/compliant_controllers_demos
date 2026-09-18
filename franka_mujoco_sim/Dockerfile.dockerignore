@@ -1,0 +1,13 @@
+**
+!common/
+!common/**
+!franka_mujoco_sim/
+!franka_mujoco_sim/**
+**/__pycache__
+**/*.pyc
+**/build
+**/install
+**/log
+**/.git
+**/*.log
+**/.pytest_cache

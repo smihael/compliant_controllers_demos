@@ -1,0 +1,8 @@
+*
+!CMakeLists.txt
+!package.xml
+!launch/
+!launch/**
+!scripts/
+!scripts/**
+!docker-entrypoint.sh

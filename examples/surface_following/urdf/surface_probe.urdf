@@ -1,0 +1,22 @@
+  <link name="surface_probe">
+    <inertial>
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <mass value="0.01"/>
+      <inertia ixx="0.000008854" ixy="0" ixz="0"
+               iyy="0.000008854" iyz="0" izz="0.000003125"/>
+    </inertial>
+    <visual name="surface_probe_visual">
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.025" length="0.10"/></geometry>
+      <material name="probe_metal"><color rgba="0.72 0.74 0.77 1"/></material>
+    </visual>
+    <collision name="surface_probe_collision">
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.025" length="0.10"/></geometry>
+    </collision>
+  </link>
+  <joint name="surface_probe_joint" type="fixed">
+    <parent link="fr3_link8"/>
+    <child link="surface_probe"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>

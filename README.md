@@ -1,39 +1,68 @@
 # compliant_controllers_demos
 
-Robot-specific launch and configuration demos for `compliant_controllers`.
+Collection of ROS 2 demo packages for `compliant_controllers`.
 
-This package contains FR3/Panda, FR3 Gazebo, Flexiv EnlightL Gazebo, UR Gazebo, and LBR/IIWA Gazebo launch files plus the controller YAML and profile files needed by those demos.
+## Packages
 
-Main project: https://github.com/smihael/compliant_controllers
+- [`franka_real`](franka_real/): real FR3 Docker image and Compose setup with configurable FCI address, CPU affinity, and real-time limits.
+- [`franka_onrobot`](franka_onrobot/): real FR3 with OnRobot HEX force/torque sensor.
+- [`franka_robotiq`](franka_robotiq/): real FR3 with Robotiq 2F-85 serial gripper.
+- [`franka_onrobot_robotiq`](franka_onrobot_robotiq/): combined sensor and gripper.
+- [`franka_gz_sim`](franka_gz_sim/): FR3 Gazebo launch and controller setup.
+- [`franka_mujoco_sim`](franka_mujoco_sim/): FR3 MuJoCo Docker demo.
+- [`lbr_mujoco_sim`](lbr_mujoco_sim/): iiwa14 MuJoCo Docker demo.
+- [`ur_mujoco_sim`](ur_mujoco_sim/): UR5e MuJoCo Docker demo.
+- [`flexiv_gz_sim`](flexiv_gz_sim/): Rizon 4s Gazebo Fortress Docker demo.
+- [`flexiv_mujoco_sim`](flexiv_mujoco_sim/): Rizon 4s MuJoCo Docker demo.
+- [`ur_gz_sim`](ur_gz_sim/): UR Gazebo simulation using the binary UR simulation package.
+- [`lbr_gz_sim`](lbr_gz_sim/): LBR Gazebo demo based on the LBR FRI ROS 2 stack (FRI client 1.15).
 
-## Examples
+Default ROS domain IDs are 1 for Franka Gazebo and the surface-following example, 2 for LBR Gazebo, 3 for UR Gazebo, 4 for Franka MuJoCo, 5 for LBR MuJoCo, 6 for UR MuJoCo, 7 for Flexiv Gazebo, and 8 for Flexiv MuJoCo. Real Franka hardware uses domain 11. Override these defaults with `ROS_DOMAIN_ID`.
 
-```bash
-ros2 launch compliant_controllers_demos fr3_gz.launch.py load_gripper:=false
-ros2 launch compliant_controllers_demos fr3_gz.launch.py controller_name:=joint_impedance_controller
-ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=cartesian_impedance_controller
-ros2 launch compliant_controllers_demos fr3.launch.py controller_name:=joint_impedance_controller
-ros2 launch compliant_controllers_demos fr3_robotiq.launch.py com_port:=/dev/ttyUSB0
-ros2 launch compliant_controllers_demos fr3_spacemouse_teleop.launch.py load_gripper:=false
-ros2 launch compliant_controllers_demos flexiv_gz.launch.py
-ros2 launch compliant_controllers_demos flexiv_gz.launch.py controller_name:=joint_impedance_controller
-ros2 launch compliant_controllers_demos flexiv_gz.launch.py show_gazebo_gui:=true
-ros2 launch compliant_controllers_demos ur_gz.launch.py ur_type:=ur10e
-ros2 launch compliant_controllers_demos lbr_gazebo.launch.py model:=iiwa14 ctrl:=cartesian_impedance_controller
-```
+## Use case examples
 
-The SpaceMouse teleop demo starts the FR3 controller, the existing `spacemouse_publisher`
-node, and a bridge that converts SpaceMouse `Twist` messages into stamped
-`compliant_controllers_msgs/CartesianCommand` targets.
+- [`surface_following`](examples/surface_following/): curved-fixture following simulation with a Jupyter notebook for interactive control.
+- [`spacemouse_teleop`](examples/spacemouse_teleop/): SpaceMouse teleoperation of the Cartesian controller with a Franka simulation Docker Compose setup.
 
-The FR3 Robotiq demo starts the FR3 compliant controller launch, the Robotiq
-2F-85 control launch, and RViz with a composed FR3 + Robotiq description.
+## Build notes
 
-## Build
+The simulation packages install helpers from [`common/`](common/). During CMake configuration, demo packages
+need to find a sibling `common/` directory.
 
-From the workspace root:
+Native build example:
 
 ```bash
-source install/setup.bash
-colcon build --packages-select compliant_controllers_demos --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF --symlink-install
+colcon build --packages-select franka_gz_sim
 ```
+
+## Docker quickstart
+
+Build the shared controller image once from the `compliant_controllers_demos` directory:
+
+```bash
+docker build -t compliant-controllers:humble-desktop-full .
+```
+
+The build imports Git repositories from [`controllers.repos`](controllers.repos). The image retains the ROS Humble desktop/GUI dependencies used by the demos.
+Build dependent images again after rebuilding it.
+
+From any simulation demo directory:
+
+```bash
+docker compose up --build
+```
+
+For a one-shot Cartesian command smoke test:
+
+```bash
+docker compose --profile demo up
+```
+
+Once the simulation is healthy, the `demo` service sends a single command to
+move the end effector 5 mm along the robot base frame's positive X axis
+from its current position, keeping the target Y, Z, and orientation unchanged.
+The arm should make a small movement and then hold the new target pose.
+
+<sub>
+Disclosure: AI coding tools were used as part of the development workflow, including documentation and refactoring. AI-generated content was reviewed, refined, and tested by the project authors.
+</sub>

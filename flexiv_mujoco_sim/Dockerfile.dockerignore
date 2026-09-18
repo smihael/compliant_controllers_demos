@@ -1,0 +1,13 @@
+**
+!common/
+!common/**
+!flexiv_mujoco_sim/
+!flexiv_mujoco_sim/**
+**/__pycache__
+**/*.pyc
+**/build
+**/install
+**/log
+**/.git
+**/*.log
+**/.pytest_cache

@@ -1,0 +1,75 @@
+name: flexiv-gz-sim
+services:
+  flexiv-gazebo:
+    build:
+      context: ..
+      dockerfile: flexiv_gz_sim/Dockerfile
+      network: host
+      args:
+        BASE_IMAGE: "${FLEXIV_BASE_IMAGE:-compliant-controllers:humble-desktop-full}"
+    image: compliant-controllers:flexiv-gz-sim
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-7}"
+      SHOW_GAZEBO_GUI: "false"
+      IGN_PARTITION: "${IGN_PARTITION:-flexiv-rizon4s}"
+      CONTROLLER_NAME: "${CONTROLLER_NAME:-cartesian_impedance_controller}"
+    healthcheck:
+      test: [CMD, /flexiv-gazebo-entrypoint.sh, ros2, run, flexiv_gz_sim, check_ready.py]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+  demo:
+    profiles: [demo]
+    image: compliant-controllers:flexiv-gz-sim
+    pull_policy: never
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-7}"
+    depends_on:
+      flexiv-gazebo:
+        condition: service_healthy
+    command:
+      - timeout
+      - 30s
+      - ros2
+      - run
+      - compliant_controllers
+      - test_cartesian_command.py
+      - --ros-args
+      - -r
+      - __ns:=/
+      - -p
+      - use_sim_time:=true
+      - -p
+      - base_frame:=base_link
+      - -p
+      - ee_frame:=flange
+      - -p
+      - dx:=0.005
+      - -p
+      - dy:=0.0
+      - -p
+      - dz:=0.0
+      - -p
+      - k_lin:=300.0
+      - -p
+      - k_rot:=20.0
+  smoke-test:
+    profiles: [test]
+    image: compliant-controllers:flexiv-gz-sim
+    pull_policy: never
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-7}"
+    depends_on:
+      flexiv-gazebo:
+        condition: service_healthy
+    command: [timeout, 60s, ros2, run, flexiv_gz_sim, verify_motion.py]

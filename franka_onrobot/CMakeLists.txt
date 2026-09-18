@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.8)
+project(franka_onrobot)
+find_package(ament_cmake REQUIRED)
+install(FILES launch/fr3_onrobot.launch.py DESTINATION share/${PROJECT_NAME}/launch)
+install(DIRECTORY urdf DESTINATION share/${PROJECT_NAME})
+ament_package()

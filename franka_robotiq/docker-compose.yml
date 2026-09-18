@@ -1,0 +1,42 @@
+services:
+  controllers:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      args:
+        BASE_IMAGE: "${FRANKA_BASE_IMAGE:-compliant-controllers:franka-real}"
+    image: compliant-controllers:franka-robotiq
+    user: "${USER_UID:-1000}:${USER_GID:-1000}"
+    group_add:
+      - "${ROBOTIQ_DEVICE_GID:-20}"
+    working_dir: /robotiq_ws
+    network_mode: host
+    ipc: host
+    privileged: true
+    init: true
+    tty: true
+    stdin_open: true
+    restart: "no"
+    cpuset: "${FRANKA_CPUSET:-20-27}"
+    cap_add:
+      - SYS_NICE
+    ulimits:
+      rtprio: 99
+      rttime: -1
+      memlock: ${FRANKA_MEMLOCK:-8428281856}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev
+    environment:
+      ROBOT_IP: "${ROBOT_IP:?Set ROBOT_IP in your local .env or shell}"
+      EE_FRAME: "${EE_FRAME:-fr3_link8}"
+      CONTROLLER_NAME: "${CONTROLLER_NAME:-cartesian_impedance_controller}"
+      ROS_DISTRO: humble
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-11}"
+      DISPLAY: "${DISPLAY:-:0}"
+      QT_X11_NO_MITSHM: "1"
+      HOME: /tmp/franka-home
+      ROS_LOG_DIR: /tmp/franka-home/.ros/log
+      START_ROBOTIQ: "${START_ROBOTIQ:-true}"
+      ROBOTIQ_COM_PORT: "${ROBOTIQ_COM_PORT:-/dev/ttyUSB0}"

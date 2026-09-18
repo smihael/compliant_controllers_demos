@@ -1,0 +1,65 @@
+services:
+  franka-gazebo:
+    build:
+      context: ..
+      dockerfile: franka_gz_sim/Dockerfile
+      network: host
+      args:
+        BASE_IMAGE: "${FRANKA_BASE_IMAGE:-compliant-controllers:humble-desktop-full}"
+    image: compliant-controllers:franka-gz-sim
+    container_name: compliant-demos-franka-gazebo
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-1}"
+      GZ_PARTITION: "${GZ_PARTITION:-compliant-franka-sim}"
+      IGN_PARTITION: "${GZ_PARTITION:-compliant-franka-sim}"
+      SHOW_GAZEBO_GUI: "${SHOW_GAZEBO_GUI:-false}"
+      SHOW_RVIZ: "${SHOW_RVIZ:-false}"
+      DISPLAY: "${DISPLAY:-:0}"
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - franka-description:/controllers_ws/install/franka_description/share/franka_description
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -lc 'source /opt/ros/humble/setup.bash &&
+          source /controllers_ws/install/setup.bash &&
+          controllers=$$(ros2 control list_controllers -c /controller_manager 2>/dev/null) &&
+          echo "$$controllers" | grep -q "joint_state_broadcaster.*active" &&
+          echo "$$controllers" | grep -q "cartesian_impedance_controller.*active" &&
+          timeout 3 ros2 topic echo --once /joint_states >/dev/null 2>&1'
+      interval: 3s
+      timeout: 8s
+      retries: 20
+      start_period: 10s
+
+  demo:
+    profiles: [demo]
+    image: compliant-controllers:franka-gz-sim
+    pull_policy: never
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-1}"
+    depends_on:
+      franka-gazebo:
+        condition: service_healthy
+    command:
+      - bash
+      - -c
+      - |
+        source /opt/ros/humble/setup.bash &&
+        source /controllers_ws/install/setup.bash &&
+        exec timeout 30s ros2 run compliant_controllers test_cartesian_command.py \
+          --ros-args -r __ns:=/ \
+          -p base_frame:=fr3_link0 -p ee_frame:=fr3_link8 \
+          -p dx:=0.005 -p dy:=0.0 -p dz:=0.0 \
+          -p k_lin:=300.0 -p k_rot:=20.0
+
+volumes:
+  franka-description:

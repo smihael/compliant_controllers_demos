@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Require active controllers and fresh finite joint state samples."""
+import math
+import os
+import time
+
+import rclpy
+from controller_manager_msgs.srv import ListControllers
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import JointState
+from rosgraph_msgs.msg import Clock
+
+
+def main():
+    rclpy.init()
+    node = Node('@DEMO_NODE_PREFIX@_@DEMO_SIMULATOR@_healthcheck')
+    try:
+        client = node.create_client(ListControllers, '/controller_manager/list_controllers')
+        if not client.wait_for_service(timeout_sec=2.0):
+            return 1
+        future = client.call_async(ListControllers.Request())
+        rclpy.spin_until_future_complete(node, future, timeout_sec=2.0)
+        result = future.result()
+        expected = {'joint_state_broadcaster', os.environ.get('CONTROLLER_NAME', '@DEMO_CONTROLLER@')}
+        if result is None or not expected.issubset({c.name for c in result.controller if c.state == 'active'}):
+            return 1
+        stamps = set()
+        clocks = set()
+        node.create_subscription(Clock, "/clock",
+            lambda msg: clocks.add((msg.clock.sec, msg.clock.nanosec)), qos_profile_sensor_data)
+
+        def receive(msg):
+            values = dict(zip(msg.name, msg.position))
+            if all(math.isfinite(values.get(name, math.nan)) for name in @DEMO_JOINTS@):
+                stamps.add((msg.header.stamp.sec, msg.header.stamp.nanosec))
+
+        node.create_subscription(JointState, '/joint_states', receive, qos_profile_sensor_data)
+        deadline = time.monotonic() + 3.0
+        while (len(stamps) < 2 or len(clocks) < 2) and time.monotonic() < deadline:
+            rclpy.spin_once(node, timeout_sec=0.2)
+        return 0 if len(stamps) >= 2 and len(clocks) >= 2 else 1
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

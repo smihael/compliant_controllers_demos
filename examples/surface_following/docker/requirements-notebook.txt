@@ -1,0 +1,3 @@
+jupyterlab>=4.2,<5
+# Jupyter's FileFindHandler is incompatible with Tornado 6.5.9 asset handling.
+tornado==6.5.8

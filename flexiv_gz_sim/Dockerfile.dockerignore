@@ -1,0 +1,11 @@
+**
+!common/
+!common/**
+!flexiv_gz_sim/
+!flexiv_gz_sim/**
+**/__pycache__
+**/*.pyc
+**/build
+**/install
+**/log
+**/.git

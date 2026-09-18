@@ -1,0 +1,19 @@
+ARG SIM_BASE_IMAGE=compliant-controllers:franka-gz-sim
+FROM ${SIM_BASE_IMAGE}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ros-${ROS_DISTRO}-gz-ros2-control ros-${ROS_DISTRO}-image-view \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /demo_overlay
+COPY common/ src/common/
+COPY franka_gz_sim src/franka_gz_sim
+RUN for package_dir in /controllers_ws/src/franka_*; do \
+      if [ -d "${package_dir}" ] && [ "$(basename "${package_dir}")" != franka_gz_sim ]; then \
+        cp -a "${package_dir}" src/; \
+      fi; \
+    done
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    source /controllers_ws/install/setup.bash && \
+    colcon build --packages-up-to franka_gazebo_bringup franka_gz_sim \
+      --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF"

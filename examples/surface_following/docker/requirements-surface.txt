@@ -1,0 +1,9 @@
+# ROS Humble's system SciPy 1.8 requires NumPy <1.25, while RobotBlockSet
+# requires NumPy >=1.24. Keep the venv inside that ABI-compatible overlap.
+numpy>=1.24,<1.25
+
+# RobotBlockSet 1.3.1 imports matplotlib.docstring, removed in newer releases.
+matplotlib==3.7.5
+
+# Keep the ROS-facing client on the exact PyPI release validated by this image.
+robotblockset==1.3.1

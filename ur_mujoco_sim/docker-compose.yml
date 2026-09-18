@@ -1,0 +1,72 @@
+name: ur-mujoco-sim
+services:
+  ur-mujoco:
+    build:
+      context: ..
+      dockerfile: ur_mujoco_sim/Dockerfile
+      network: host
+      args:
+        BASE_IMAGE: "${UR_BASE_IMAGE:-compliant-controllers:humble-desktop-full}"
+    image: compliant-controllers:ur-mujoco-sim
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-6}"
+      MUJOCO_HEADLESS: "true"
+      CONTROLLER_NAME: "${CONTROLLER_NAME:-cartesian_impedance_controller}"
+    healthcheck:
+      test: [CMD, /ur-mujoco-entrypoint.sh, ros2, run, ur_mujoco_sim, check_ready.py]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+  demo:
+    profiles: [demo]
+    image: compliant-controllers:ur-mujoco-sim
+    pull_policy: never
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-6}"
+    depends_on:
+      ur-mujoco:
+        condition: service_healthy
+    command:
+      - timeout
+      - 30s
+      - ros2
+      - run
+      - compliant_controllers
+      - test_cartesian_command.py
+      - --ros-args
+      - -r
+      - __ns:=/
+      - -p
+      - base_frame:=base_link
+      - -p
+      - ee_frame:=tool0
+      - -p
+      - dx:=0.005
+      - -p
+      - dy:=0.0
+      - -p
+      - dz:=0.0
+      - -p
+      - k_lin:=300.0
+      - -p
+      - k_rot:=20.0
+  smoke-test:
+    profiles: [test]
+    image: compliant-controllers:ur-mujoco-sim
+    pull_policy: never
+    init: true
+    network_mode: host
+    ipc: host
+    environment:
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-6}"
+    depends_on:
+      ur-mujoco:
+        condition: service_healthy
+    command: [timeout, 60s, ros2, run, ur_mujoco_sim, verify_motion.py]

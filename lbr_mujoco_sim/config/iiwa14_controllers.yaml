@@ -1,0 +1,35 @@
+/controller_manager:
+  ros__parameters:
+    update_rate: 1000
+    cartesian_impedance_controller:
+      type: compliant_controllers/GenericCartesianControllerWrapper
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+/cartesian_impedance_controller:
+  ros__parameters:
+    arm_id: lbr
+    init_k_pos: 200.0
+    init_k_ori: 10.0
+    max_step_guard_enabled: true
+    ee_frame: lbr_link_ee
+    robot_description_node: /robot_state_publisher
+    robot_description_param: robot_description
+    gravity_compensation_enabled: true
+    joint_limit_repulsion:
+      enabled: true
+      stiffness:
+      - 50.0
+      damping:
+      - 5.0
+      margin:
+      - 0.15
+    impl_library: libcartesian_impedance_impl.so
+    joints:
+    - lbr_A1
+    - lbr_A2
+    - lbr_A3
+    - lbr_A4
+    - lbr_A5
+    - lbr_A6
+    - lbr_A7
+    base_frame: lbr_link_0

@@ -1,0 +1,10 @@
+# Optional host X11 access for ROS desktop tools and the native Gazebo GUI.
+services:
+  franka-gazebo:
+    environment:
+      SHOW_GAZEBO_GUI: "${SHOW_GAZEBO_GUI:-false}"
+      SHOW_RVIZ: "${SHOW_RVIZ:-false}"
+      DISPLAY: "${DISPLAY:-:0}"
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
