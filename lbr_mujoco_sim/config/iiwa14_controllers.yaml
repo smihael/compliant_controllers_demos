@@ -11,7 +11,7 @@
     init_k_pos: 200.0
     init_k_ori: 10.0
     max_step_guard_enabled: true
-    ee_frame: lbr_link_ee
+    control_frame: lbr_link_ee
     robot_description_node: /robot_state_publisher
     robot_description_param: robot_description
     gravity_compensation_enabled: true

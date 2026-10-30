@@ -56,3 +56,30 @@ Use the same `ROS_DOMAIN_ID` for the simulation and command sender.
 docker compose logs demo
 docker compose --profile demo down
 ```
+
+## Compare compliance frames
+
+The stiffness-frame test keeps the controller's current Cartesian reference and
+sets positional stiffness to `diag(1000, 0, 1000)` N/m. Build the image once,
+then select a frame when starting or recreating the simulation:
+
+```bash
+# World/base axes
+COMPLIANCE_FRAME='' docker compose up --build --force-recreate franka-gazebo
+
+# Flange axes
+COMPLIANCE_FRAME=fr3_link8 docker compose up --force-recreate franka-gazebo
+
+# TCP axes (the hand must be loaded)
+LOAD_GRIPPER=true COMPLIANCE_FRAME=fr3_hand_tcp \
+  docker compose up --force-recreate franka-gazebo
+```
+
+An empty `compliance_frame` uses the controller's base axes; this launch
+publishes an identity `world` to base transform, so those axes match world.
+After each launch, run the sender in another terminal:
+
+```bash
+docker compose exec franka-gazebo bash -lc \
+  'source /opt/ros/humble/setup.bash && source /controllers_ws/install/setup.bash && ros2 run compliant_controllers test_compliance_frame.py'
+```

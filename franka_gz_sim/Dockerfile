@@ -68,4 +68,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ros-${ROS_DISTRO}-rqt-image-view \
     && rm -rf /var/lib/apt/lists/*
 
-CMD ["bash", "-c", "source /controllers_ws/install/setup.bash && exec ros2 launch franka_gz_sim fr3_gz.launch.py show_gazebo_gui:=${SHOW_GAZEBO_GUI:-true} show_rviz:=${SHOW_RVIZ:-false}"]
+CMD ["bash", "-c", "source /controllers_ws/install/setup.bash && exec ros2 launch franka_gz_sim fr3_gz.launch.py show_gazebo_gui:=${SHOW_GAZEBO_GUI:-true} show_rviz:=${SHOW_RVIZ:-false} load_gripper:=${LOAD_GRIPPER:-false} compliance_frame:=${COMPLIANCE_FRAME:-}"]

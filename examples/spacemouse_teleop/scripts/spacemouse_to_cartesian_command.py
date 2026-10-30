@@ -182,7 +182,8 @@ class SpaceMouseToCartesianCommand(Node):
 
         cmd = CartesianCommand()
         cmd.header.stamp = now.to_msg()
-        cmd.header.frame_id = self.ee_frame
+        cmd.header.frame_id = self.base_frame
+        cmd.target_frame = self.ee_frame
         cmd.pose.position.x = self.target_position[0]
         cmd.pose.position.y = self.target_position[1]
         cmd.pose.position.z = self.target_position[2]

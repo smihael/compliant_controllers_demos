@@ -3,6 +3,7 @@ services:
     environment:
       CONTROLLER_DEBUG: "1"
       CONTROLLER_NAME: cartesian_impedance_controller
+      COMPLIANCE_FRAME: "${COMPLIANCE_FRAME:-}"
     command:
       - bash
       - -c
@@ -10,7 +11,8 @@ services:
         exec ros2 launch franka_real fr3.launch.py \
           robot_ip:="$${ROBOT_IP}" \
           load_gripper:="$${LOAD_GRIPPER}" \
-          controller_name:=cartesian_impedance_controller
+          controller_name:=cartesian_impedance_controller \
+          compliance_frame:="$${COMPLIANCE_FRAME}"
   sender:
     image: compliant-controllers:franka-real
     pull_policy: never

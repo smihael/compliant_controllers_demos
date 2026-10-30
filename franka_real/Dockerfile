@@ -39,4 +39,4 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
 COPY entrypoint.sh /franka_entrypoint.sh
 RUN chmod 755 /franka_entrypoint.sh
 ENTRYPOINT ["/franka_entrypoint.sh"]
-CMD ["bash", "-c", "exec ros2 launch franka_real fr3.launch.py robot_ip:=\"${ROBOT_IP:?Set ROBOT_IP to the FCI address}\" load_gripper:=\"${LOAD_GRIPPER:-false}\" controller_name:=\"${CONTROLLER_NAME:-cartesian_impedance_controller}\""]
+CMD ["bash", "-c", "exec ros2 launch franka_real fr3.launch.py robot_ip:=\"${ROBOT_IP:?Set ROBOT_IP to the FCI address}\" load_gripper:=\"${LOAD_GRIPPER:-false}\" controller_name:=\"${CONTROLLER_NAME:-cartesian_impedance_controller}\" compliance_frame:=\"${COMPLIANCE_FRAME:-}\""]

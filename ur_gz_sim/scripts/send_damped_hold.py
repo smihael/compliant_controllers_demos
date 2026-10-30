@@ -50,8 +50,9 @@ def main():
         raise SystemExit('No end-effector transform or command subscriber within 15 seconds')
     cmd = CartesianCommand()
     cmd.header.stamp = node.get_clock().now().to_msg()
-    # This API identifies the controlled frame in the header; pose is in base_frame.
-    cmd.header.frame_id = args.ee_frame
+    # The header identifies the coordinates used by the pose and vectors.
+    cmd.header.frame_id = args.base_frame
+    cmd.target_frame = args.ee_frame
     cmd.pose.position.x = transform.transform.translation.x + args.dx
     cmd.pose.position.y = transform.transform.translation.y
     cmd.pose.position.z = transform.transform.translation.z

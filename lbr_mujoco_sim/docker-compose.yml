@@ -46,7 +46,7 @@ services:
       - -p
       - base_frame:=lbr_link_0
       - -p
-      - ee_frame:=lbr_link_ee
+      - control_frame:=lbr_link_ee
       - -p
       - dx:=0.005
       - -p

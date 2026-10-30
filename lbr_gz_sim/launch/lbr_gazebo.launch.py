@@ -309,7 +309,7 @@ def generate_launch_description() -> LaunchDescription:
             "controller_manager": ["/", robot_name, "/controller_manager"],
             "impl_library": LaunchConfiguration("impl_library"),
             "joints": "lbr_A1,lbr_A2,lbr_A3,lbr_A4,lbr_A5,lbr_A6,lbr_A7",
-            "ee_frame": "lbr_link_ee",
+            "control_frame": "lbr_link_ee",
             "base_frame": "lbr_link_0",
             "robot_description_node": ["/", robot_name, "/robot_state_publisher"],
             "robot_description_param": "robot_description",

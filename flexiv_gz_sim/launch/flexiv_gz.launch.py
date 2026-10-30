@@ -135,7 +135,7 @@ def _build_runtime_nodes(context: LaunchContext, show_rviz, controller_debug):
             'arm_id': '',
             'controller_name': controller_name,
             'controller_manager': '/controller_manager',
-            'ee_frame': 'flange',
+            'control_frame': 'flange',
             'base_frame': 'base_link',
             'robot_description_node': '/robot_state_publisher',
             'robot_description_param': 'robot_description',

@@ -46,7 +46,7 @@ services:
       - -p
       - base_frame:=base_link
       - -p
-      - ee_frame:=tool0
+      - control_frame:=tool0
       - -p
       - dx:=0.005
       - -p

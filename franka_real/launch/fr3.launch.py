@@ -59,8 +59,8 @@ def arm(context):
         'use_fake_hardware': 'false',
     }).toxml()
     document = xacro.parse(description)
-    if value('ee_frame') not in {link.getAttribute('name') for link in document.getElementsByTagName('link')}:
-        raise ValueError('ee_frame must name a link in the mounted robot description')
+    if value('control_frame') not in {link.getAttribute('name') for link in document.getElementsByTagName('link')}:
+        raise ValueError('control_frame must name a link in the mounted robot description')
 
     runtime = tempfile.TemporaryDirectory(prefix='franka-real-')
     arm_config = os.path.join(runtime.name, 'arm.yaml')
@@ -104,7 +104,7 @@ def controller(context):
     arguments = {
         'namespace': 'fr3',
         'arm_id': 'fr3',
-        'ee_frame': LaunchConfiguration('ee_frame'),
+        'control_frame': LaunchConfiguration('control_frame'),
         'controller_name': name,
         'robot_description_node': 'robot_state_publisher',
         'robot_profile_file': LaunchConfiguration('robot_profile_file'),
@@ -113,7 +113,15 @@ def controller(context):
         'impl_library': 'libjoint_impedance_impl.so' if joint else 'libcartesian_impedance_impl.so',
     }
     if not joint:
-        arguments.update(base_frame='fr3_link0', gravity_compensation_enabled='false')
+        arguments.update(
+            base_frame='fr3_link0',
+            gravity_compensation_enabled='false',
+            # World and robot base coincide in this demo's static TF.
+            compliance_frame=(
+                '' if LaunchConfiguration('compliance_frame').perform(context)
+                in ('world', 'fr3_link0')
+                else LaunchConfiguration('compliance_frame')),
+        )
     return [include('compliant_controllers',
                     'joint_wrapper.launch.py' if joint else 'cartesian_wrapper.launch.py',
                     arguments)]
@@ -129,7 +137,12 @@ def generate_launch_description():
                               description='JSON object of custom xacro arguments (string values)'),
         DeclareLaunchArgument('extra_joint_state_sources', default_value='[]',
                               description='JSON list of accessory joint-state topics for a custom description'),
-        DeclareLaunchArgument('ee_frame', default_value='fr3_link8'),
+        DeclareLaunchArgument('control_frame', default_value='fr3_link8'),
+        DeclareLaunchArgument(
+            'compliance_frame', default_value='',
+            description=(
+                'Frame for Cartesian compliance; empty/world/fr3_link0 uses base axes, '
+                'or specify a fixed URDF frame such as fr3_link8 or fr3_hand_tcp')),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller',
                               choices=['cartesian_impedance_controller', 'joint_impedance_controller']),
         DeclareLaunchArgument('robot_profile_file', default_value=''),

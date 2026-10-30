@@ -127,7 +127,7 @@ def _build_runtime_nodes(
             'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
             'controller_manager': controller_manager,
-            'ee_frame': LaunchConfiguration('ee_frame'),
+            'control_frame': LaunchConfiguration('control_frame'),
             'robot_description_node': '/robot_state_publisher',
             'robot_description_param': 'robot_description',
             'friction_compensation_enabled': LaunchConfiguration('friction_compensation_enabled'),
@@ -142,7 +142,8 @@ def _build_runtime_nodes(
             'arm_id': LaunchConfiguration('arm_id'),
             'controller_name': LaunchConfiguration('controller_name'),
             'controller_manager': controller_manager,
-            'ee_frame': LaunchConfiguration('ee_frame'),
+            'control_frame': LaunchConfiguration('control_frame'),
+            'compliance_frame': LaunchConfiguration('compliance_frame'),
             'base_frame': LaunchConfiguration('base_frame'),
             'robot_description_node': '/robot_state_publisher',
             'robot_description_param': 'robot_description',
@@ -228,7 +229,12 @@ def generate_launch_description():
             description='Maximum seconds to wait for controller initialization while Gazebo is paused'),
         DeclareLaunchArgument('controller_name', default_value='cartesian_impedance_controller', description='Primary controller to spawn'),
         DeclareLaunchArgument('impl_library', default_value=''),
-        DeclareLaunchArgument('ee_frame', default_value=''),
+        DeclareLaunchArgument('control_frame', default_value='fr3_link8'),
+        DeclareLaunchArgument(
+            'compliance_frame', default_value='',
+            description=(
+                'Frame for Cartesian stiffness axes; empty uses base/world axes, '
+                'or specify a fixed URDF frame such as fr3_link8 or fr3_hand_tcp')),
         DeclareLaunchArgument('base_frame', default_value=''),
         DeclareLaunchArgument('dithering_enabled', default_value='false'),
         DeclareLaunchArgument('gravity_compensation_enabled', default_value=''),

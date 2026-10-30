@@ -17,6 +17,8 @@ services:
       IGN_PARTITION: "${GZ_PARTITION:-compliant-franka-sim}"
       SHOW_GAZEBO_GUI: "${SHOW_GAZEBO_GUI:-false}"
       SHOW_RVIZ: "${SHOW_RVIZ:-false}"
+      LOAD_GRIPPER: "${LOAD_GRIPPER:-false}"
+      COMPLIANCE_FRAME: "${COMPLIANCE_FRAME:-}"
       DISPLAY: "${DISPLAY:-:0}"
       QT_X11_NO_MITSHM: "1"
     volumes:

@@ -251,7 +251,7 @@ def launch_setup(context, *args, **kwargs):
             "controller_manager": "/controller_manager",
             "impl_library": impl_library,
             "joints": ur_joints,
-            "ee_frame": f"{prefix_str}tool0",
+            "control_frame": f"{prefix_str}tool0",
             "base_frame": f"{prefix_str}base_link",
             "robot_description_node": "/robot_state_publisher",
             "robot_description_param": "robot_description",

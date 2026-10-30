@@ -46,7 +46,7 @@ services:
       - -p
       - base_frame:=fr3_link0
       - -p
-      - ee_frame:=fr3_link8
+      - control_frame:=fr3_link8
       - -p
       - dx:=0.005
       - -p

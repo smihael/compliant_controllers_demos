@@ -30,11 +30,19 @@ services:
       ROBOT_IP: "${ROBOT_IP:?Set ROBOT_IP in your local .env or shell}"
       LOAD_GRIPPER: "${LOAD_GRIPPER:-false}"
       CONTROLLER_NAME: "${CONTROLLER_NAME:-cartesian_impedance_controller}"
+      COMPLIANCE_FRAME: "${COMPLIANCE_FRAME:-}"
       ROS_DISTRO: humble
       ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-11}"
       DISPLAY: "${DISPLAY:-:0}"
       QT_X11_NO_MITSHM: "1"
       HOME: /tmp/franka-home
       ROS_LOG_DIR: /tmp/franka-home/.ros/log
-    #command: communication_test 192.168.1.1
-    command: echo_robot_state 192.168.1.1
+    command:
+      - bash
+      - -c
+      - |
+        exec ros2 launch franka_real fr3.launch.py \
+          robot_ip:="$${ROBOT_IP}" \
+          load_gripper:="$${LOAD_GRIPPER}" \
+          controller_name:="$${CONTROLLER_NAME}" \
+          compliance_frame:="$${COMPLIANCE_FRAME}"
