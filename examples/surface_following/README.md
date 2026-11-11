@@ -1,7 +1,7 @@
 # Surface-following example
 
-The simulator extends the locally built `compliant-controllers:franka-gz-sim`
-image. Build it first using the [Franka Gazebo instructions](../../franka_gz_sim/#docker).
+The simulator extends the locally built `compliant-controllers:fr3-gz-sim`
+image. Build it first using the [Franka Gazebo instructions](../../fr3_gz_sim/#docker).
 The entire example is mounted at `/opt/demo` in both containers.
 Edit notebooks, scripts, fixtures, URDF and startup scripts without rebuilding.
 

@@ -42,11 +42,8 @@ Start the simulation and an optional command sender:
 docker compose --profile demo up --build
 ```
 
-The `demo` container reuses the simulation image, waits for healthy controllers,
-then sources the workspace and runs the installed script directly:
-`ros2 run compliant_controllers test_cartesian_command.py`.
-It sends one 5 mm X command relative to the current pose, using `base_link` and
-`tool0`, and exits. The command times out after 30 seconds if it cannot finish.
+The `demo` container waits for healthy controllers, sends one relative 5 mm X
+step using `base_link` and `tool0`, and exits. 
 
 For an already-running simulation, send another step with:
 

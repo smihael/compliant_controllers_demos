@@ -1,12 +1,9 @@
 # Universal Robots UR5e in MuJoCo
 
-Counterpart to [`ur_gz_sim`](../ur_gz_sim/), following the
-[`franka_mujoco_sim`](../franka_mujoco_sim/) setup. Uses
+Universal Robots UR5e simulation using
 [ros-controls/mujoco_ros2_control](https://github.com/ros-controls/mujoco_ros2_control)
-with the shared Cartesian impedance controller, gravity compensation, 6 effort
-interfaces, full visual meshes, and 1 ms physics/control periods.
-This project targets **ur5e** without a gripper.
-
+and the shared Cartesian impedance controller. The model has 6 effort
+interfaces, gravity compensation, and no gripper. 
 ## Build and test
 
 Requires Docker Engine and Compose v2. From the `compliant_controllers_demos` repository root:

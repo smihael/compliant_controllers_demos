@@ -4,12 +4,13 @@ Collection of ROS 2 demo packages for `compliant_controllers`.
 
 ## Packages
 
-- [`franka_real`](franka_real/): real FR3 Docker image and Compose setup with configurable FCI address, CPU affinity, and real-time limits.
-- [`franka_onrobot`](franka_onrobot/): real FR3 with OnRobot HEX force/torque sensor.
-- [`franka_robotiq`](franka_robotiq/): real FR3 with Robotiq 2F-85 serial gripper.
-- [`franka_onrobot_robotiq`](franka_onrobot_robotiq/): combined sensor and gripper.
-- [`franka_gz_sim`](franka_gz_sim/): FR3 Gazebo launch and controller setup.
-- [`franka_mujoco_sim`](franka_mujoco_sim/): FR3 MuJoCo Docker demo.
+- [`fr3_real`](fr3_real/): real FR3 Docker image and Compose setup with configurable FCI address, CPU affinity, and real-time limits.
+- [`fr3_onrobot`](fr3_onrobot/): real FR3 with OnRobot HEX force/torque sensor.
+- [`fr3_robotiq`](fr3_robotiq/): real FR3 with Robotiq 2F-85 serial gripper.
+- [`fr3_onrobot_robotiq`](fr3_onrobot_robotiq/): combined sensor and gripper.
+- [`fr3_kwr75b_d405`](fr3_kwr75b_d405/): real FR3 with a KWR75B force/torque sensor, Franka Hand and D405 holder.
+- [`fr3_gz_sim`](fr3_gz_sim/): FR3 Gazebo launch and controller setup.
+- [`fr3_mujoco_sim`](fr3_mujoco_sim/): FR3 MuJoCo Docker demo.
 - [`lbr_mujoco_sim`](lbr_mujoco_sim/): iiwa14 MuJoCo Docker demo.
 - [`ur_mujoco_sim`](ur_mujoco_sim/): UR5e MuJoCo Docker demo.
 - [`flexiv_gz_sim`](flexiv_gz_sim/): Rizon 4s Gazebo Fortress Docker demo.
@@ -32,7 +33,7 @@ need to find a sibling `common/` directory.
 Native build example:
 
 ```bash
-colcon build --packages-select franka_gz_sim
+colcon build --packages-select fr3_gz_sim
 ```
 
 ## Docker quickstart
@@ -62,7 +63,3 @@ Once the simulation is healthy, the `demo` service sends a single command to
 move the end effector 5 mm along the robot base frame's positive X axis
 from its current position, keeping the target Y, Z, and orientation unchanged.
 The arm should make a small movement and then hold the new target pose.
-
-<sub>
-Disclosure: AI coding tools were used as part of the development workflow, including documentation and refactoring. AI-generated content was reviewed, refined, and tested by the project authors.
-</sub>

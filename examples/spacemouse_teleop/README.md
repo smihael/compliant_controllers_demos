@@ -4,8 +4,8 @@ SpaceMouse interface for the Cartesian impedance controller.
 
 ## Franka simulation with Docker
 
-The simulation reuses the existing `compliant-controllers:franka-gz-sim`
-image. Build it first using the [Franka Gazebo instructions](../../franka_gz_sim/#docker).
+The simulation reuses the existing `compliant-controllers:fr3-gz-sim`
+image. Build it first using the [Franka Gazebo instructions](../../fr3_gz_sim/#docker).
 Compose builds the teleoperation image.
 
 First, identify the device (`/dev/hidraw3` is used below as an example).
@@ -46,7 +46,7 @@ Launch the robot or simulation independently, then start teleop with the same
 ROS domain and robot namespace:
 
 ```bash
-ros2 launch spacemouse_teleop fr3_spacemouse_teleop.launch.py
+ros2 launch spacemouse_teleop bringup.launch.py
 ```
 
 List available options with `--show-args`.

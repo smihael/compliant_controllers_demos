@@ -1,0 +1,11 @@
+**
+!common/
+!common/**
+!fr3_gz_sim/
+!fr3_gz_sim/**
+**/__pycache__
+**/*.pyc
+**/build
+**/install
+**/log
+**/.git

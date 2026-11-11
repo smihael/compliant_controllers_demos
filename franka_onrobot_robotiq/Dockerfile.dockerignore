@@ -1,9 +1,0 @@
-**
-!CMakeLists.txt
-!package.xml
-!launch/
-!launch/fr3_onrobot_robotiq.launch.py
-!urdf/
-!urdf/**
-!install_dependencies.sh
-!entrypoint.sh

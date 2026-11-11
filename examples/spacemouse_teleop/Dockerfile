@@ -1,5 +1,5 @@
 # Reuse the exact message ABI from the existing simulator image.
-ARG SIM_IMAGE=compliant-controllers:franka-gz-sim
+ARG SIM_IMAGE=compliant-controllers:fr3-gz-sim
 FROM ${SIM_IMAGE} AS simulation
 
 FROM ros:humble-ros-core AS builder
@@ -33,4 +33,4 @@ COPY --from=builder /teleop_ws/install /teleop_ws/install
 ENV PYTHONPATH=/opt/python-deps
 COPY docker-entrypoint.sh /teleop-entrypoint.sh
 ENTRYPOINT ["/bin/bash", "/teleop-entrypoint.sh"]
-CMD ["ros2", "launch", "spacemouse_teleop", "fr3_spacemouse_teleop.launch.py", "namespace:=/", "use_sim_time:=false", "device_path:=/dev/hidraw3"]
+CMD ["ros2", "launch", "spacemouse_teleop", "bringup.launch.py", "namespace:=/", "use_sim_time:=false", "device_path:=/dev/hidraw3"]

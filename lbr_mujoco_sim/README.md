@@ -1,11 +1,9 @@
 # KUKA LBR iiwa14 in MuJoCo
 
-Counterpart to [`lbr_gz_sim`](../lbr_gz_sim/), following the
-[`franka_mujoco_sim`](../franka_mujoco_sim/) setup. Uses
+KUKA LBR iiwa14 simulation using
 [ros-controls/mujoco_ros2_control](https://github.com/ros-controls/mujoco_ros2_control)
-with the shared Cartesian impedance controller, gravity compensation, 7 effort
-interfaces, full visual meshes, and 1 ms physics/control periods.
-This project targets **iiwa14** without a gripper.
+and the shared Cartesian impedance controller. The model has 7 effort
+interfaces, gravity compensation, and no gripper. 
 
 ## Build and test
 

@@ -1,7 +1,7 @@
 name: franka-spacemouse
 services:
   simulation:
-    image: ${FRANKA_SIM_IMAGE:-compliant-controllers:franka-gz-sim}
+    image: ${FRANKA_SIM_IMAGE:-compliant-controllers:fr3-gz-sim}
     pull_policy: never
     init: true
     network_mode: host
@@ -34,7 +34,7 @@ services:
       context: .
       network: host
       args:
-        SIM_IMAGE: ${FRANKA_SIM_IMAGE:-compliant-controllers:franka-gz-sim}
+        SIM_IMAGE: ${FRANKA_SIM_IMAGE:-compliant-controllers:fr3-gz-sim}
     image: compliant-controllers:spacemouse-teleop
     init: true
     network_mode: host
@@ -50,7 +50,7 @@ services:
       - ros2
       - launch
       - spacemouse_teleop
-      - fr3_spacemouse_teleop.launch.py
+      - bringup.launch.py
       - namespace:=/
       - use_sim_time:=false
       - device_path:=/dev/hidraw3

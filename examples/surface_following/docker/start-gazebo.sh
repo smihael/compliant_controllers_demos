@@ -15,7 +15,7 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 143' TERM INT
 world="$(ros2 pkg prefix --share franka_gazebo_bringup)/worlds/empty_no_gravity.sdf"
-ros2 launch franka_gz_sim fr3_gz.launch.py \
+ros2 launch fr3_gz_sim bringup.launch.py \
   world:="$world" show_gazebo_gui:="${SHOW_GAZEBO_GUI:-true}" \
   show_rviz:=false load_gripper:=false \
   extra_urdf_file:=/opt/demo/urdf/surface_probe.urdf \

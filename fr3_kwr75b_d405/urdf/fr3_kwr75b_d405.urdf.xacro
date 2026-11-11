@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="fr3_kwr75b_d405">
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/><child link="base"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <xacro:include filename="$(find franka_description)/robots/common/franka_robot.xacro"/>
+  <xacro:arg name="sensor_prefix" default="ft_sensor"/>
+  <xacro:arg name="ros2_control" default="false"/>
+  <xacro:arg name="robot_ip" default=""/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="holder_xyz" default="0.02045 0 0.0175"/>
+  <xacro:arg name="holder_rpy" default="3.141592653589793 -1.5707963267948966 0"/>
+  <xacro:arg name="show_camera" default="true"/>
+  <xacro:arg name="show_fasteners" default="false"/>
+  <xacro:include filename="$(find kunwei_ft_driver)/urdf/kunwei_sensor.urdf.xacro"/>
+  <xacro:property name="adapter_h" value="${0.006}"/>
+  <xacro:property name="m6_seat" value="${adapter_h-0.0042}"/>
+  <xacro:property name="m6_head_h" value="${0.004}"/>
+  <xacro:property name="m6_length" value="${0.008}"/>
+  <xacro:property name="m4_tip" value="${-0.005}"/>
+  <xacro:franka_robot robot_type="fr3" hand="true" ee_id="franka_hand"
+      special_connection="$(arg sensor_prefix)" xyz_ee="0 0 0" rpy_ee="0 0 ${pi/4}"
+      tcp_xyz="0 0 0.1034" tcp_rpy="0 0 0" with_sc="false"
+      ros2_control="$(arg ros2_control)" robot_ip="$(arg robot_ip)"
+      use_fake_hardware="$(arg use_fake_hardware)" connected_to="base"/>
+  <!-- Rotate the FT cable side by 180 degrees; compensate at the hand attachment above. -->
+  <xacro:kunwei_sensor parent="fr3_link8" sensor_frame="$(arg sensor_prefix)" yaw="${5*pi/3}"/>
+
+  <!-- Visual screw envelopes; dimensions are illustrative, not calibrated inertias. -->
+  <xacro:macro name="fastener" params="name parent xyz radius length z color head_radius:=0 head_length:=0 head_z:=0">
+    <joint name="${name}_joint" type="fixed">
+      <parent link="${parent}"/><child link="${name}"/>
+      <origin xyz="${xyz}"/>
+    </joint>
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 ${z}"/>
+        <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+        <material name="${name}_color"><color rgba="${color}"/></material>
+      </visual>
+      <xacro:if value="${head_length > 0}">
+        <visual>
+          <origin xyz="0 0 ${head_z}"/>
+          <geometry><cylinder radius="${head_radius}" length="${head_length}"/></geometry>
+          <material name="${name}_color"/>
+        </visual>
+      </xacro:if>
+    </link>
+  </xacro:macro>
+  <xacro:if value="$(arg show_fasteners)">
+    <xacro:fastener name="robot_adapter_M6_1" parent="fr3_link8" xyz="0.017677669529663688 0.017677669529663684 0" radius="0.003" length="${m6_length}" z="${m6_seat-m6_length/2}" color="1 .48 .08 1" head_radius="0.005" head_length="${m6_head_h}" head_z="${m6_seat+m6_head_h/2}"/>
+    <xacro:fastener name="robot_adapter_M6_2" parent="fr3_link8" xyz="-0.017677669529663684 0.017677669529663688 0" radius="0.003" length="${m6_length}" z="${m6_seat-m6_length/2}" color="1 .48 .08 1" head_radius="0.005" head_length="${m6_head_h}" head_z="${m6_seat+m6_head_h/2}"/>
+    <xacro:fastener name="robot_adapter_M6_3" parent="fr3_link8" xyz="-0.01767766952966369 -0.017677669529663684 0" radius="0.003" length="${m6_length}" z="${m6_seat-m6_length/2}" color="1 .48 .08 1" head_radius="0.005" head_length="${m6_head_h}" head_z="${m6_seat+m6_head_h/2}"/>
+    <xacro:fastener name="robot_adapter_M6_4" parent="fr3_link8" xyz="0.017677669529663684 -0.01767766952966369 0" radius="0.003" length="${m6_length}" z="${m6_seat-m6_length/2}" color="1 .48 .08 1" head_radius="0.005" head_length="${m6_head_h}" head_z="${m6_seat+m6_head_h/2}"/>
+    <xacro:fastener name="sensor_adapter_M4_1" parent="$(arg sensor_prefix)_body" xyz="0.011286664729747072 0.031009856485934975 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="sensor_adapter_M4_2" parent="$(arg sensor_prefix)_body" xyz="-0.011286664729747068 0.03100985648593498 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="sensor_adapter_M4_3" parent="$(arg sensor_prefix)_body" xyz="-0.03249865584940287 -0.005730389863008705 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="sensor_adapter_M4_4" parent="$(arg sensor_prefix)_body" xyz="-0.021211991119655802 -0.02527946662292627 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="sensor_adapter_M4_5" parent="$(arg sensor_prefix)_body" xyz="0.021211991119655795 -0.02527946662292628 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="sensor_adapter_M4_6" parent="$(arg sensor_prefix)_body" xyz="0.03249865584940287 -0.0057303898630087025 0" radius="0.002" length="${0.008-m4_tip}" z="${(0.008+m4_tip)/2}" color=".05 .75 .95 1" head_radius="0.0035" head_length="0.004" head_z="0.01"/>
+    <xacro:fastener name="hand_mount_M6_1" parent="$(arg sensor_prefix)" xyz="-0.017677669529663684 -0.017677669529663688 0" radius="0.003" length="0.012" z="-0.002" color=".15 .85 .25 1" head_radius="0.005" head_length="0.004" head_z="0.006"/>
+    <xacro:fastener name="hand_thread_overrun_1" parent="$(arg sensor_prefix)" xyz="-0.017677669529663684 -0.017677669529663688 0" radius="0.0031" length="0.002" z="-0.007" color="1 .08 .08 1"/>
+    <xacro:fastener name="hand_mount_M6_2" parent="$(arg sensor_prefix)" xyz="0.017677669529663688 0.017677669529663684 0" radius="0.003" length="0.012" z="-0.002" color=".15 .85 .25 1" head_radius="0.005" head_length="0.004" head_z="0.006"/>
+    <xacro:fastener name="hand_thread_overrun_2" parent="$(arg sensor_prefix)" xyz="0.017677669529663688 0.017677669529663684 0" radius="0.0031" length="0.002" z="-0.007" color="1 .08 .08 1"/>
+  </xacro:if>
+  <!-- Imported source coordinates -> Hand: hX=cadZ+20.45mm,
+       hY=-cadY, hZ=cadX+17.5mm. Front shared M6 maps to Hand(+25,0). -->
+  <joint name="d405_holder_joint" type="fixed">
+    <parent link="fr3_hand"/><child link="d405_holder"/>
+    <origin xyz="$(arg holder_xyz)" rpy="$(arg holder_rpy)"/>
+  </joint>
+  <link name="d405_holder">
+    <visual><geometry><mesh filename="package://fr3_kwr75b_d405/meshes/d405_holder.stl" scale="0.001 0.001 0.001"/></geometry>
+      <material name="holder_blue"><color rgba="0.30 0.65 0.85 1"/></material>
+    </visual>
+  </link>
+  <xacro:if value="$(arg show_camera)">
+    <!-- Camera envelope from the supplied build script, NOT calibrated camera extrinsics. -->
+    <joint name="d405_camera_envelope_joint" type="fixed">
+      <parent link="d405_holder"/><child link="d405_camera_envelope"/>
+      <origin xyz="${0.0165*cos(25*pi/180)} 0 ${0.048-0.0165*sin(25*pi/180)}" rpy="0 ${25*pi/180} 0"/>
+    </joint>
+    <link name="d405_camera_envelope">
+      <visual><geometry><box size="0.023 0.042 0.042"/></geometry>
+        <material name="camera_black"><color rgba="0.12 0.13 0.15 1"/></material>
+      </visual>
+    </link>
+    <joint name="d405_preview_optical_joint" type="fixed">
+      <parent link="d405_camera_envelope"/><child link="d405_preview_optical_frame"/>
+      <origin xyz="0.0015 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
+    </joint>
+    <link name="d405_preview_optical_frame"/>
+    <xacro:if value="$(arg show_fasteners)">
+      <xacro:macro name="d405_screw" params="id y">
+        <joint name="d405_M3_${id}_joint" type="fixed">
+          <parent link="d405_camera_envelope"/><child link="d405_M3_${id}"/>
+          <origin xyz="0 ${y} 0" rpy="0 ${pi/2} 0"/>
+        </joint>
+        <link name="d405_M3_${id}">
+          <visual><origin xyz="0 0 -0.0135"/><geometry><cylinder radius="0.0015" length="0.010"/></geometry>
+            <material name="camera_screw_magenta"><color rgba="0.85 0.20 0.65 1"/></material></visual>
+          <visual><origin xyz="0 0 -0.020"/><geometry><cylinder radius="0.00275" length="0.003"/></geometry>
+            <material name="camera_screw_magenta"/></visual>
+        </link>
+      </xacro:macro>
+      <xacro:d405_screw id="left" y="-0.010"/>
+      <xacro:d405_screw id="right" y="0.010"/>
+    </xacro:if>
+  </xacro:if>
+</robot>
