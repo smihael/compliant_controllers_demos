@@ -62,6 +62,9 @@ The sensor starts in both modes by default; `start_sensor:=auto` enables it only
 View mode uses namespace `/fr3_kwr75b_d405` and TF prefix `fr3_kwr75b_d405_view/`; real mode uses the shared `/fr3` bringup.
 The default controller frame is `fr3_link8`; controller and friction-compensation options are passed to `fr3_real`.
 
+There is also a `/ft_sensor/wrench_tcp` topic, which republishes raw sensor data in the TCP frame.
+It uses TF and applies both axis rotation and the moment-arm correction: `F_tcp = R F_sensor`, `tau_tcp = R tau_sensor + p × F_tcp`, where `p` is the sensor origin in TCP-coordinates.
+
 ## Assembly
 
 The sensor measurement frame is 37.5 mm from the flange, with native yaw 300° and Hand yaw −15°.

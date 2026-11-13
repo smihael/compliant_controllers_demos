@@ -140,6 +140,13 @@ def setup(context):
             'publish_visualization': value('rviz'),
             'visualization_rate': value('visualization_rate'),
         }))
+        actions.append(Node(
+            package='fr3_kwr75b_d405', executable='republish_tcp_wrench.py',
+            output='screen', parameters=[{
+                'input_topic': '/' + sensor_prefix + '/wrench',
+                'output_topic': '/' + sensor_prefix + '/wrench_tcp',
+                'target_frame': prefix + 'fr3_hand_tcp',
+            }]))
     if zero_sensor == 'true':
         actions.append(Node(
             package='fr3_kwr75b_d405', executable='zero_ft_sensor.py',
